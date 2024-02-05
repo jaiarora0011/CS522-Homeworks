@@ -2,7 +2,7 @@ mod STATE is including PL-INT + PL-ID .
   sort State .
 
   op _|->_ : List{Id} Int -> State [prec 0] .
-  op .State : -> State .
+  op .State : -> State .                        --- empty state
   op _&_ : State State -> State [assoc comm id: .State format(d s s d)] .
 
   op _(_) : State Id -> Int [prec 0] .          --- lookup
