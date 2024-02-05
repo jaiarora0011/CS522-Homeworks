@@ -106,7 +106,7 @@ mod IMP-SEMANTICS-BIGSTEP is including IMP-CONFIGURATIONS-BIGSTEP .
  crl < while (B) S,Sigma > => < Sigma' > 
   if < B,Sigma > => < true > /\ < S while (B) S,Sigma > => < Sigma' > .
  --- WhileCondError
- crl < while (B) S, Sigma > => < Sigma >
+ crl < while (B) S, Sigma > => < ErrorState >
   if < B, Sigma > => ErrorExp .
 
  crl < int Xl ; S > => < Sigma >

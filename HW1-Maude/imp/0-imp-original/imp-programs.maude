@@ -57,6 +57,7 @@ mod IMP-DIV-ZERO is including IMP-SYNTAX .
   ops constDiv1 constDiv2 idDiv1 idDiv2 : -> AExp .
   ops negLeq and : -> BExp .
   ops asgn seq1 seq2 iteCond ite1 ite2 whileCond whileFalse whileTrue : -> Stmt .
+  ops pgm : -> Pgm .
 
   eq constDiv1 = (2 / 0) .
   eq constDiv2 = (x / 0) .
@@ -75,5 +76,14 @@ mod IMP-DIV-ZERO is including IMP-SYNTAX .
   eq whileCond = (while (x / y <= 10) { x = 2 ; } ) .
   eq whileFalse = (while (false) { asgn } ) .
   eq whileTrue = (while (true) { asgn } ) .
+
+  eq pgm = (
+    int n, s ;
+    n = 5 ;
+    while (!(n <= -1)) {
+      s = s + (10 / n) ;
+      n = n + -1 ;
+    }
+  ) .
 
 endm

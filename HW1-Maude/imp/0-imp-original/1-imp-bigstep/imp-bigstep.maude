@@ -38,4 +38,7 @@ rewrite < whileCond, x |-> 1 & y |-> 0 > .
 rewrite < whileFalse, x |-> 1 & y |-> 0 > . --- Non-error result
 rewrite < whileTrue, x |-> 1 & y |-> 0 > .
 
+rewrite < pgm > .
+search < pgm > =>! Cfg:Configuration .
+
 quit
