@@ -6,7 +6,7 @@ in imp-semantics-smallstep
 
 in ../imp-programs.maude
 
-mod TEST is including IMP-SEMANTICS-SMALLSTEP + IMP-PROGRAMS .  endm
+mod TEST is including IMP-SEMANTICS-SMALLSTEP + IMP-PROGRAMS + IMP-DIV-ZERO .  endm
 
 rewrite * < sumPgm > .
 rewrite * < collatzStmt, n |-> 10 & (q,r,s) |-> 0 > .
@@ -16,5 +16,29 @@ rewrite * < primalityStmt, n |-> 1021 & (i,q,r,t,x,y,z) |-> 0 > .
 rewrite * < countPrimesPgm > .
 
 search * < sumPgm > =>! Cfg:ExtendedConfiguration .
+
+rewrite * < constDiv1, .State > .
+rewrite * < constDiv2, x |-> 1 > .
+rewrite * < idDiv1, x |-> 1 & y |-> 0 > .
+rewrite * < idDiv2, (x,y,w) |-> 1 & z |-> 0 > .
+rewrite * < idDiv2, (x,y,z) |-> 1 & w |-> 0 > .
+rewrite * < idDiv2, (x,z,w) |-> 1 & y |-> 0 > .
+
+rewrite * < negLeq, x |-> 10 & y |-> 0 > .
+rewrite * < and, x |-> 2 & y |-> 0 > .        --- Non-error result
+rewrite * < and, x |-> 5 & y |-> 0 > .
+
+rewrite * < asgn, x |-> 1 & y |-> 0 > .
+rewrite * < seq1, x |-> 1 & y |-> 0 > .
+rewrite * < seq2, x |-> 1 & y |-> 0 > .
+rewrite * < iteCond, x |-> 1 > .
+rewrite * < ite1, x |-> 1 & y |-> 0 > .       --- Non-error result
+rewrite * < ite2, x |-> 1 & y |-> 0 > .
+rewrite * < whileCond, x |-> 1 & y |-> 0 > .
+rewrite * < whileFalse, x |-> 1 & y |-> 0 > . --- Non-error result
+rewrite * < whileTrue, x |-> 1 & y |-> 0 > .
+
+rewrite * < pgm > .
+search * < pgm > =>! Cfg:ExtendedConfiguration .
 
 quit
