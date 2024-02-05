@@ -61,7 +61,7 @@ mod IMP-DIV-ZERO is including IMP-SYNTAX .
   eq constDiv1 = (2 / 0) .
   eq constDiv2 = (x / 0) .
   eq idDiv1 = (x / y) .
-  eq idDiv2 = (x + y / z) .
+  eq idDiv2 = ((x / y) / (z / w)) .
 
   eq negLeq = (!(idDiv1 <= x)) .
   eq and = (!(x <= 2) && idDiv1 <= 10) .
@@ -69,7 +69,7 @@ mod IMP-DIV-ZERO is including IMP-SYNTAX .
   eq asgn = (x = 1 / y ;) .
   eq seq1 = (asgn x = x + 1 ;) .
   eq seq2 = (x = x + 1 ; asgn) .
-  eq iteCond = (if (x / 0 <= 10) {} else {} ) .
+  eq iteCond = (if (10 <= x / 0) {} else {} ) .
   eq ite1 = (if (true) { x = 2 ; } else { asgn } ) .
   eq ite2 = (if (false) { x = 2 ; } else { asgn } ) .
   eq whileCond = (while (x / y <= 10) { x = 2 ; } ) .

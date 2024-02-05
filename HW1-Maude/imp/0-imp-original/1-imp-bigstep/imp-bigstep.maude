@@ -20,7 +20,9 @@ search < sumPgm > =>! Cfg:Configuration .
 rewrite < constDiv1, .State > .
 rewrite < constDiv2, x |-> 1 > .
 rewrite < idDiv1, x |-> 1 & y |-> 0 > .
-rewrite < idDiv2, (x,y) |-> 1 & z |-> 0 > .
+rewrite < idDiv2, (x,y,w) |-> 1 & z |-> 0 > .
+rewrite < idDiv2, (x,y,z) |-> 1 & w |-> 0 > .
+rewrite < idDiv2, (x,z,w) |-> 1 & y |-> 0 > .
 
 rewrite < negLeq, x |-> 10 & y |-> 0 > .
 rewrite < and, x |-> 2 & y |-> 0 > .        --- Non-error result

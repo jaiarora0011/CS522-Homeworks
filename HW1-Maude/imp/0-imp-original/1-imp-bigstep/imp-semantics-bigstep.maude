@@ -7,6 +7,10 @@ mod IMP-CONFIGURATIONS-BIGSTEP is including IMP-SYNTAX + STATE .
   op <_,_> : Stmt State -> Configuration .
   op   <_> : State -> Configuration .
   op   <_> : Pgm -> Configuration .
+  --- represents an error expression value (both arithmetic and boolean)
+  op ErrorExp : -> Configuration .
+  --- represents an error state
+  op ErrorState : -> State .
 endm
 
 mod IMP-SEMANTICS-BIGSTEP is including IMP-CONFIGURATIONS-BIGSTEP .
@@ -19,36 +23,91 @@ mod IMP-SEMANTICS-BIGSTEP is including IMP-CONFIGURATIONS-BIGSTEP .
   if Sigma(X) =/=Bool undefined .
  crl < A1 + A2,Sigma > => < I1 +Int I2 > 
   if < A1,Sigma > => < I1 > /\ < A2,Sigma > => < I2 > .
+ --- AddError1
+ crl < A1 + A2, Sigma > => ErrorExp
+  if < A1, Sigma > => ErrorExp .
+ --- AddError2
+ crl < A1 + A2, Sigma > => ErrorExp
+  if < A2, Sigma > => ErrorExp .
+
  crl < A1 / A2,Sigma > => < I1 /Int I2 > 
   if < A1,Sigma > => < I1 > /\ < A2,Sigma > => < I2 > /\ I2 =/=Bool 0 .
+ --- Need 3 extra rules for division
+ --- DivError1
+ crl < A1 / A2, Sigma > => ErrorExp
+  if < A1, Sigma > => ErrorExp .
+ --- DivError2
+ crl < A1 / A2, Sigma > => ErrorExp
+  if < A2, Sigma > => ErrorExp .
+ --- DivbyZero
+ crl < A1 / A2, Sigma > => ErrorExp
+  if < A1, Sigma > => < I1 > /\ < A2, Sigma > => < I2 > /\ I2 ==Bool 0 .
 
   rl < T,Sigma > => < T > .
  crl < A1 <= A2,Sigma > => < I1 <=Int I2 > 
   if < A1,Sigma > => < I1 > /\ < A2,Sigma > => < I2 > .
+ --- LeqError1
+ crl < A1 <= A2, Sigma > => ErrorExp
+  if < A1, Sigma > => ErrorExp .
+ --- LeqError2
+ crl < A1 <= A2, Sigma > => ErrorExp
+  if < A2, Sigma > => ErrorExp .
+
  crl < ! B,Sigma > => < false > 
-  if < B,Sigma > => <  true > .
+  if < B,Sigma > => < true > .
  crl < ! B,Sigma > => < true > 
   if < B,Sigma > => < false > .
+ --- NegError
+ crl < ! B,Sigma > => ErrorExp 
+  if < B, Sigma > => ErrorExp .
+
  crl < B1 && B2,Sigma > => < false > 
   if < B1,Sigma > => < false > .
  crl < B1 && B2,Sigma > => < T > 
   if < B1,Sigma > => < true > /\ < B2,Sigma > => < T > .
+ --- AndError1
+ crl < B1 && B2, Sigma > => ErrorExp
+  if < B1, Sigma > => ErrorExp .
+ --- AndError2, this needs to follow short circuiting semantics
+ crl < B1 && B2, Sigma > => ErrorExp 
+  if < B1, Sigma > => < true > /\ < B2 ,Sigma > => ErrorExp .
 
   rl < {},Sigma > => < Sigma > .
  crl < {S},Sigma > => < Sigma' >
   if < S,Sigma > => < Sigma' > .
+ --- StmtError, error state is propagated through every statement
+ --- This will NOT cause conflicts with any other rule
+ --- rl < S, ErrorState > => < ErrorState > .
+
  crl < X = A ;,Sigma > => < Sigma[I / X] >
   if < A,Sigma > => < I > /\ Sigma(X) =/=Bool undefined .
+ --- AsgnError
+ crl < X = A ;,Sigma > => < ErrorState >
+  if < A, Sigma > => ErrorExp /\ Sigma(X) =/=Bool undefined .
+
+ --- Only move to S2 if there was no error in S1
  crl < S1 S2,Sigma > => < Sigma2 > 
-  if < S1,Sigma > => < Sigma1 > /\ < S2,Sigma1 > => < Sigma2 > .
+  if < S1, Sigma > => < Sigma1 > /\ < S2,Sigma1 > => < Sigma2 >
+    /\ Sigma1 =/=Bool ErrorState .
+ --- SeqError, don't evaluate S2 if there is an error in S1
+ crl < S1 S2, Sigma > => < ErrorState >
+  if < S1, Sigma > => < ErrorState > .
+
  crl < if (B) S1 else S2,Sigma > => < Sigma1 > 
   if < B,Sigma > => < true > /\ < S1,Sigma > => < Sigma1 > .
  crl < if (B) S1 else S2,Sigma > => < Sigma2 > 
   if < B,Sigma > => < false > /\ < S2,Sigma > => < Sigma2 > .
+ --- IteCondError
+ crl < if (B) S1 else S2, Sigma > => < ErrorState > 
+  if < B, Sigma > => ErrorExp .
+
  crl < while (B) S,Sigma > => < Sigma >
   if < B,Sigma > => < false > .
  crl < while (B) S,Sigma > => < Sigma' > 
   if < B,Sigma > => < true > /\ < S while (B) S,Sigma > => < Sigma' > .
+ --- WhileCondError
+ crl < while (B) S, Sigma > => < Sigma >
+  if < B, Sigma > => ErrorExp .
 
  crl < int Xl ; S > => < Sigma >
   if < S,(Xl |-> 0) > => < Sigma > .
