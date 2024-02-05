@@ -5,6 +5,11 @@ mod IMP-CONFIGURATIONS-SMALLSTEP is including IMP-SYNTAX + STATE .
   op <_,_> : BExp State -> Configuration .
   op <_,_> : Stmt State -> Configuration .
   op <_> : Pgm -> Configuration .
+  --- Error syntactic ingredients for expressions, statements and states
+  op ArithError : -> AExp .
+  op BoolError : -> BExp .
+  op StmtError : -> Stmt .
+  op ErrorState : -> State .
   op o_ : Configuration -> ExtendedConfiguration [prec 80] .   --- one step
   op *_ : Configuration -> ExtendedConfiguration [prec 80] .   --- all steps
   var Cfg Cfg' : Configuration .
@@ -20,35 +25,67 @@ mod IMP-SEMANTICS-SMALLSTEP is including IMP-CONFIGURATIONS-SMALLSTEP .
  crl o < A1 + A2,Sigma > => < A1' + A2,Sigma > if o < A1,Sigma > => < A1',Sigma > .
  crl o < A1 + A2,Sigma > => < A1 + A2',Sigma > if o < A2,Sigma > => < A2',Sigma > .
   rl o < I1 + I2,Sigma > => < I1 +Int I2,Sigma > .
+ --- AddError1
+ crl o < A1 + A2, Sigma > => < ArithError, ErrorState >
+  if o < A1, Sigma > => < A1', ErrorState > .
+ --- AddError2
+ crl o < A1 + A2, Sigma > => < ArithError, ErrorState >
+  if o < A2, Sigma > => < A2', ErrorState > .
 
  crl o < A1 / A2,Sigma > => < A1' / A2,Sigma > if o < A1,Sigma > => < A1',Sigma > .
  crl o < A1 / A2,Sigma > => < A1 / A2',Sigma > if o < A2,Sigma > => < A2',Sigma > .
  crl o < I1 / I2,Sigma > => < I1 /Int I2,Sigma > if I2 =/=Bool 0 .
+ --- DivError1
+ crl o < A1 / A2, Sigma > => < ArithError, ErrorState >
+  if o < A1, Sigma > => < A1', ErrorState > .
+ --- DivError2
+ crl o < A1 / A2, Sigma > => < ArithError, ErrorState >
+  if o < A2, Sigma > => < A2', ErrorState > .
+ --- DivByZero
+ crl o < I1 / I2, Sigma > => < ArithError, ErrorState > if I2 ==Bool 0 .
 
  crl o < A1 <= A2,Sigma > => < A1' <= A2,Sigma > if o < A1,Sigma > => < A1',Sigma > .
  crl o < I1 <= A2,Sigma > => < I1 <= A2',Sigma > if o < A2,Sigma > => < A2',Sigma > .
   rl o < I1 <= I2,Sigma > => < I1 <=Int I2,Sigma > .
+ --- LeqError1
+ crl o < A1 <= A2, Sigma > => < BoolError, ErrorState >
+  if o < A1, Sigma > => < A1', ErrorState > .
+ --- LeqError2, maintaining sequential strictness
+ crl o < I1 <= A2, Sigma > => < BoolError, ErrorState >
+  if o < A2, Sigma > => < A2', ErrorState > .
 
  crl o < ! B,Sigma > => < ! B',Sigma > if o < B,Sigma > => < B',Sigma > .
   rl o < ! true,Sigma > => < false,Sigma > .
   rl o < ! false,Sigma > => < true,Sigma > .
+ --- NegError
+ crl o < ! B, Sigma > => < BoolError, ErrorState > if o < B, Sigma > => < B', ErrorState > .
 
  crl o < B1 && B2,Sigma > => < B1' && B2,Sigma > if o < B1,Sigma > => < B1',Sigma > .
   rl o < false && B2,Sigma > => < false,Sigma > .
   rl o < true && B2,Sigma > => < B2,Sigma > .
+ --- AndError
+ crl o < B1 && B2, Sigma > => < BoolError, ErrorState > if o < B1, Sigma > => < B1', ErrorState > .
 
   rl o < {S},Sigma > => < S,Sigma > .
 
  crl o < X = A ;,Sigma > => < X = A' ;,Sigma > if o < A,Sigma > => < A',Sigma > .
  crl o < X = I ;,Sigma > => < {},Sigma[I / X] > if Sigma(X) =/=Bool undefined .
+ --- AsgnError
+ crl o < X = A ;,Sigma > => < StmtError, ErrorState > if o < A, Sigma > => < A', ErrorState > .
 
- crl o < S1 S2,Sigma > => < S1' S2,Sigma' > if o < S1,Sigma > => < S1',Sigma' > .
+ --- Added an extra condition so this does not conflict with SeqError
+ crl o < S1 S2,Sigma > => < S1' S2,Sigma' > if o < S1,Sigma > => < S1',Sigma' > /\ Sigma' =/=Bool ErrorState .
   rl o < {} S2,Sigma > => < S2,Sigma > .
+ --- SeqError
+ crl o < S1 S2, Sigma > => < StmtError, ErrorState > if o < S1, Sigma > => < S1', ErrorState > .
 
  crl o < if (B) S1 else S2,Sigma > => < if (B') S1 else S2,Sigma >
   if o < B,Sigma > => < B',Sigma  > .
   rl o < if (true) S1 else S2,Sigma > => < S1,Sigma > .
   rl o < if (false) S1 else S2,Sigma > => < S2,Sigma > .
+ --- IteError
+ crl o < if (B) S1 else S2,Sigma > => < StmtError, ErrorState >
+  if o < B, Sigma > => < B', ErrorState  > .
 
   rl o < while (B) S,Sigma > => < if (B) {S while (B) S} else {},Sigma > .
 
