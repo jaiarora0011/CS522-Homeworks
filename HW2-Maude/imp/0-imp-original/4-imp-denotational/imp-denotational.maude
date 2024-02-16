@@ -6,7 +6,7 @@ in imp-semantics-denotational
 
 in ../imp-programs.maude
 
-mod TEST is including IMP-SEMANTICS-DENOTATIONAL + IMP-PROGRAMS .  endm
+mod TEST is including IMP-SEMANTICS-DENOTATIONAL + IMP-PROGRAMS + IMP-DIV-ZERO .  endm
 
 rewrite [[sumPgm]] .
 rewrite appCPO([[collatzStmt]], n |-> 10 & (q,r,s) |-> 0 ) .
@@ -14,5 +14,28 @@ rewrite [[collatzPgm]] .
 rewrite appCPO([[multiplicationStmt]] , x |-> 25 & y |-> 5 & (q,r,z) |-> 0 ) .
 rewrite appCPO([[primalityStmt]], n |-> 1021 & (i,q,r,t,x,y,z) |-> 0 ) .
 rewrite [[countPrimesPgm]] .
+
+rewrite appCPO([[constDiv1]], .State ) .
+rewrite appCPO([[constDiv2]], x |-> 1 ) .
+rewrite appCPO([[idDiv1]], x |-> 1 & y |-> 0 ) .
+rewrite appCPO([[idDiv2]], (x,y,w) |-> 1 & z |-> 0 ) .
+rewrite appCPO([[idDiv2]], (x,y,z) |-> 1 & w |-> 0 ) .
+rewrite appCPO([[idDiv2]], (x,z,w) |-> 1 & y |-> 0 ) .
+
+rewrite appCPO([[negLeq]], x |-> 10 & y |-> 0 ) .
+rewrite appCPO([[and]], x |-> 2 & y |-> 0 ) .        --- Non-error result
+rewrite appCPO([[and]], x |-> 5 & y |-> 0 ) .
+
+rewrite appCPO([[asgn]], x |-> 1 & y |-> 0 ) .
+rewrite appCPO([[seq1]], x |-> 1 & y |-> 0 ) .
+rewrite appCPO([[seq2]], x |-> 1 & y |-> 0 ) .
+rewrite appCPO([[iteCond]], x |-> 1 ) .
+rewrite appCPO([[ite1]], x |-> 1 & y |-> 0 ) .       --- Non-error result
+rewrite appCPO([[ite2]], x |-> 1 & y |-> 0 ) .
+rewrite appCPO([[whileCond]], x |-> 1 & y |-> 0 ) .
+rewrite appCPO([[whileFalse]], x |-> 1 & y |-> 0 ) . --- Non-error result
+rewrite appCPO([[whileTrue]], x |-> 1 & y |-> 0 ) .
+
+rewrite [[pgm]].
 
 quit
