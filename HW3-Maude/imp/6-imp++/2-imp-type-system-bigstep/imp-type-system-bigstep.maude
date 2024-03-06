@@ -1,0 +1,81 @@
+in ../../../builtins.maude
+in ../imp-syntax.maude
+
+in imp-type-system-semantics-bigstep
+in ../imp-programs.maude
+
+mod TEST is including IMP-TYPE-SYSTEM-BIGSTEP + IMP-PROGRAMS + IMP-DIV-ZERO . endm
+
+rewrite < 10 + 20, .List{Id} > .
+rewrite < constDiv1, .List{Id} > .
+rewrite < constDiv2, x > .
+rewrite < idDiv1, (x, y) > .
+rewrite < idDiv2, (x,y,z,w) > .
+rewrite < idDiv2, (x,y,z,w) > .
+rewrite < idDiv2, (x,y,z,w) > .
+rewrite < ++ x / (++ x / x), x > .
+search < ++ x / (++ x / x), x > =>! Cfg:Configuration .
+
+rewrite < read() / read(), .List{Id} > .
+search < read() / read(), .List{Id} > =>! Cfg:Configuration .
+
+rewrite < negLeq, (x,y) > .
+rewrite < and, (x,y)> .
+rewrite < and, (x,y) > .
+
+rewrite < {}, .List{Id} > .
+rewrite < asgn, (x,y) > .
+rewrite < seq1, (x,y) > .
+rewrite < seq2, (x,y) > .
+rewrite < iteCond, x > .
+rewrite < ite1, (x,y) > .
+rewrite < ite2, (x,y) > .
+rewrite < whileCond, (x,y) > .
+rewrite < whileFalse, (x,y) > .
+rewrite < whileTrue, (x,y) > .
+
+rewrite < sumPgm, s > .
+rewrite < collatzStmt, (n,q,r,s) > .
+rewrite < collatzPgm,s > .
+rewrite < multiplicationStmt, (x,y,q,r,z) > .
+rewrite < primalityStmt, (n,i,q,r,t,x,y,z) > .
+rewrite < countPrimesPgm,s > .
+
+search < sumPgm > =>! Cfg:Configuration .
+
+--- Increment
+rewrite < sum++Pgm > .
+search  < sum++Pgm > =>! Cfg:Configuration .
+
+rewrite < nondet++Pgm > .
+search  < nondet++Pgm > =>! Cfg:Configuration .
+
+--- I/O
+rewrite < sumIOPgm > .
+search  < sumIOPgm > =>! Cfg:Configuration .
+rewrite < whileIOPgm > .
+search  < whileIOPgm > =>! Cfg:Configuration .
+rewrite < nondetIOStmt, .List{Id} > .
+search  < nondetIOStmt, .List{Id} > =>! Cfg:Configuration .
+
+--- Abrupt Termination
+rewrite < sumHaltPgm > .
+search  < sumHaltPgm > =>! Cfg:Configuration .
+
+rewrite < sumDivByZeroPgm > .
+search  < sumDivByZeroPgm > =>! Cfg:Configuration .
+
+--- Spawn
+rewrite < sumSpawnPgm > .
+rewrite < spawnPgm > .
+
+--- Locals
+rewrite < int s ; sumPgm > .
+search  < int s ; sumPgm > =>! Cfg:Configuration .
+
+rewrite < shadow1Stmt, (y,z) > .
+search  < shadow1Stmt, (y,z) > =>! Cfg:Configuration .
+rewrite < shadow2Stmt, (y,z) > .
+search  < shadow2Stmt, (y,z) > =>! Cfg:Configuration .
+
+quit
