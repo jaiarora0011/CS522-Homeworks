@@ -26,5 +26,17 @@ rewrite < and, x |-> 2 & y |-> 0, epsilon > .        --- Non-error result
 rewrite < and, x |-> 5 & y |-> 0, epsilon > .
 
 rewrite < {}, .State, epsilon > .
+rewrite < asgn, x |-> 1 & y |-> 0, epsilon > .
+rewrite < seq1, x |-> 1 & y |-> 0, epsilon > .
+rewrite < seq2, x |-> 1 & y |-> 0, epsilon > .
+rewrite < iteCond, x |-> 1, epsilon > .
+rewrite < ite1, x |-> 1 & y |-> 0, epsilon > .       --- Non-error result
+rewrite < ite2, x |-> 1 & y |-> 0, epsilon > .
+rewrite < whileCond, x |-> 1 & y |-> 0, epsilon > .
+rewrite < whileFalse, x |-> 1 & y |-> 0, epsilon > . --- Non-error result
+rewrite < whileTrue, x |-> 1 & y |-> 0, epsilon > .
+
+rewrite < pgm, epsilon > .
+search < pgm, 4 : 5 > =>! Cfg:Configuration .
 
 quit

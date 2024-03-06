@@ -207,18 +207,28 @@ mod IMP-SEMANTICS-BIGSTEP is including IMP-CONFIGURATIONS-BIGSTEP .
   rl < halt ;, Sigma, Win > => < halting, Sigma, Win, epsilon > .
 
 --- Spawn
+  crl < spawn S, Sigma, Win > => < signal, Sigma', Win', Wout >
+    if < S, Sigma, Win > => < signal, Sigma', Win', Wout > .
 
+  crl < spawn S1 S2, Sigma, Win > => < signal, Sigma1, Win1, Wout2 : Wout1 >
+    if < S2, Sigma, Win > => < ok, Sigma2, Win2, Wout2 > /\ < S1, Sigma2, Win2 > => < signal, Sigma1, Win1, Wout1 > .
+
+  crl < spawn S1 S2, Sigma, Win > => < halting, Sigma2, Win2, Wout2 >
+    if < S2, Sigma, Win > => < halting, Sigma2, Win2, Wout2 > .
 
 --- Local Variables
   crl < let X = A in S, Sigma, Win > => < signal, Sigma''[Sigma'(X) / X], Win'', Wout >
     if < A, Sigma, Win > => < I, Sigma', Win' > /\ < S, Sigma'[I / X], Win' > => < signal, Sigma'', Win'', Wout > .
 
+  crl < let X = A in S, Sigma, Win > => < halting, Sigma', Win', epsilon >
+    if < A, Sigma, Win > => < error, Sigma', Win' > .
+
 --- Programs are regarded as statements in the initial state.
 --- However, without any option to output, the resulting configuration
 --- will always contain only an empty state and nothing else (empty indeed,
 --- because all the locally declared variables are removed from the state
---- when their block ends).
+--- when their block ends). We also dissolve the signal
   crl < P, Win > => < Sigma, Win', Wout >
-    if < P, .State, Win > => < Sigma, Win', Wout > .
+    if < P, .State, Win > => < signal, Sigma, Win', Wout > .
 
 endm
