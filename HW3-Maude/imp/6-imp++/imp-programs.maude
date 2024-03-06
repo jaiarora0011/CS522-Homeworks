@@ -133,7 +133,7 @@ ops sumPgm collatzPgm countPrimesPgm : -> Pgm .
   op sumSpawnPgm : -> Pgm .
   eq sumSpawnPgm = {
     int m, n, s ;
-    n = 2 ;   --- 100 may be too large for some semantics
+    n = 1 ;   --- 100 may be too large for some semantics
     while (m <= n) {
       spawn {s = s + m ;}
       m = m + 1 ;

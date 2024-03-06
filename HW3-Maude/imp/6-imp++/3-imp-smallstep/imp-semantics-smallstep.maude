@@ -24,8 +24,9 @@ endm
 
 mod IMP-SEMANTICS-SMALLSTEP is including IMP-CONFIGURATIONS-SMALLSTEP .
   var X : Id .  var Sigma Sigma' : State .  var I I1 I2 : Int .  var Xl : List{Id} .
-  var A A' A1 A1' A2 A2' : AExp .  var B B' B1 B1' B2 : BExp .  var S S' S1 S1' S2 : Stmt .
-  var Win Wout Win' : Buffer .
+  var A A' A1 A1' A2 A2' : AExp .  var B B' B1 B1' B2 : BExp .  var S S' S1 S1' S2 S2' : Stmt .
+  var Win Wout Win' Wout' : Buffer .
+  var P : Pgm .
 
   crl o < X, Sigma, Win > => < Sigma(X), Sigma, Win >
     if Sigma(X) =/=Bool undefined .
@@ -107,21 +108,88 @@ mod IMP-SEMANTICS-SMALLSTEP is including IMP-CONFIGURATIONS-SMALLSTEP .
   crl o < B1 && B2, Sigma, Win > => < error, Sigma', Win' >
     if o < B1, Sigma, Win > => < error, Sigma', Win' > .
 
-  --- rl o < {S},Sigma > => < S,Sigma > .
+--- Block
+  rl o < {S}, Sigma, Win, Wout > => < S, Sigma, Win, Wout > .
 
-  --- crl o < X = A ;,Sigma > => < X = A' ;,Sigma > if o < A,Sigma > => < A',Sigma > .
-  --- crl o < X = I ;,Sigma > => < {},Sigma[I / X] > if Sigma(X) =/=Bool undefined .
+--- Assignment
+  crl o < X = A ;, Sigma, Win, Wout > => < X = A' ;, Sigma', Win', Wout >
+    if o < A, Sigma, Win > => < A', Sigma', Win' > .
 
-  --- crl o < S1 S2,Sigma > => < S1' S2,Sigma' > if o < S1,Sigma > => < S1',Sigma' > .
-  --- rl o < {} S2,Sigma > => < S2,Sigma > .
+  crl o < X = A ;, Sigma, Win, Wout > => < halting, Sigma', Win', Wout >
+    if o < A, Sigma, Win > => < error, Sigma', Win' > .
 
-  --- crl o < if (B) S1 else S2,Sigma > => < if (B') S1 else S2,Sigma >
-  --- if o < B,Sigma > => < B',Sigma  > .
-  --- rl o < if (true) S1 else S2,Sigma > => < S1,Sigma > .
-  --- rl o < if (false) S1 else S2,Sigma > => < S2,Sigma > .
+  crl o < X = I ;, Sigma, Win, Wout > => < {}, Sigma[I / X], Win, Wout >
+    if Sigma(X) =/=Bool undefined .
 
-  --- rl o < while (B) S,Sigma > => < if (B) {S while (B) S} else {},Sigma > .
+--- Sequence
+  crl o < S1 S2, Sigma, Win, Wout > => < S1' S2, Sigma', Win', Wout' >
+    if o < S1, Sigma, Win, Wout > => < S1', Sigma', Win', Wout' > .
 
-  --- rl o < int Xl ; S > => < S,(Xl |-> 0) > .
+  crl o < S1 S2, Sigma, Win, Wout > => < halting, Sigma', Win', Wout' >
+    if o < S1, Sigma, Win, Wout > => < halting, Sigma', Win', Wout' > .
+
+  rl o < {} S2, Sigma, Win, Wout > => < S2, Sigma, Win, Wout > .
+
+--- Conditional
+  crl o < if (B) S1 else S2, Sigma, Win, Wout > => < if (B') S1 else S2, Sigma', Win', Wout >
+    if o < B, Sigma, Win > => < B', Sigma', Win'  > .
+
+  crl o < if (B) S1 else S2, Sigma, Win, Wout > => < halting, Sigma', Win', Wout >
+    if o < B, Sigma, Win > => < error, Sigma', Win'  > .
+
+  rl o < if (true) S1 else S2, Sigma, Win, Wout > => < S1, Sigma, Win, Wout > .
+  rl o < if (false) S1 else S2, Sigma, Win, Wout > => < S2, Sigma, Win, Wout > .
+
+--- While
+  rl o < while (B) S, Sigma, Win, Wout > => < if (B) {S while (B) S} else {}, Sigma, Win, Wout > .
+
+--- Print
+  crl o < print(A) ;, Sigma, Win, Wout > => < print(A') ;, Sigma', Win', Wout >
+    if o < A, Sigma, Win > => < A', Sigma', Win' > .
+
+  crl o < print(A) ;, Sigma, Win, Wout > => < halting, Sigma', Win', Wout >
+    if o < A, Sigma, Win > => < error, Sigma', Win' > .
+
+  rl o < print(I) ;, Sigma, Win, Wout > => < {}, Sigma, Win, Wout : I > .
+
+--- Halt
+  rl o < halt ;, Sigma, Win, Wout > => < halting, Sigma, Win, Wout > .
+  rl o < halting, Sigma, Win, Wout > => < {}, Sigma, Win, Wout > .
+
+--- Spawn
+  op spawn_ : Stmt -> Stmt [ditto] .
+  crl o < spawn S, Sigma, Win, Wout > => < spawn S', Sigma', Win', Wout' >
+    if o < S, Sigma, Win, Wout > => < S', Sigma', Win', Wout' > .
+
+  crl o < spawn S, Sigma, Win, Wout > => < halting, Sigma', Win', Wout' >
+    if o < S, Sigma, Win, Wout > => < halting, Sigma', Win', Wout' > .
+
+  crl o < spawn S1 S2, Sigma, Win, Wout > => < spawn S1 S2', Sigma', Win', Wout' >
+    if o < S2, Sigma, Win, Wout > => < S2', Sigma', Win', Wout' > .
+
+  crl o < spawn S1 S2, Sigma, Win, Wout > => < halting, Sigma', Win', Wout' >
+    if o < S2, Sigma, Win, Wout > => < halting, Sigma', Win', Wout' > .
+
+  rl o < spawn {}, Sigma, Win, Wout > => < {}, Sigma, Win, Wout > .
+
+  eq (S1 S2) S = S1 (S2 S) .
+
+--- Let bindings
+  crl o < let X = A in S, Sigma, Win, Wout > => < let X = A' in S, Sigma', Win', Wout >
+    if o < A, Sigma, Win > => < A', Sigma', Win' > .
+  
+  crl o < let X = A in S, Sigma, Win, Wout > => < halting, Sigma', Win', Wout >
+    if o < A, Sigma, Win > => < error, Sigma', Win' > .
+
+  crl o < let X = I in S, Sigma, Win, Wout > => < let X = Sigma'(X) in S', Sigma'[Sigma(X) / X], Win', Wout' >
+    if o < S, Sigma[I / X], Win, Wout > => < S', Sigma', Win', Wout' > .
+
+  crl o < let X = I in S, Sigma, Win, Wout > => < halting, Sigma'[Sigma(X) / X], Win', Wout' >
+    if o < S, Sigma[I / X], Win, Wout > => < halting, Sigma', Win', Wout' > .
+
+  rl o < let X = I in {}, Sigma, Win, Wout > => < {}, Sigma, Win, Wout > .
+
+--- Program
+  rl o < P, Win > => < P, .State, Win, epsilon > .
 
 endm
