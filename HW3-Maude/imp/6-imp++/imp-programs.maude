@@ -168,3 +168,38 @@ ops sumPgm collatzPgm countPrimesPgm : -> Pgm .
     y = x ;
   } .
 endm
+
+mod IMP-DIV-ZERO is including IMP-SYNTAX .
+  ops constDiv1 constDiv2 idDiv1 idDiv2 : -> AExp .
+  ops negLeq and : -> BExp .
+  ops asgn seq1 seq2 iteCond ite1 ite2 whileCond whileFalse whileTrue : -> Stmt .
+  ops pgm : -> Pgm .
+
+  eq constDiv1 = (2 / 0) .
+  eq constDiv2 = (x / 0) .
+  eq idDiv1 = (x / y) .
+  eq idDiv2 = ((x / y) / (z / w)) .
+
+  eq negLeq = (!(idDiv1 <= x)) .
+  eq and = (!(x <= 2) && idDiv1 <= 10) .
+
+  eq asgn = (x = 1 / y ;) .
+  eq seq1 = (asgn x = x + 1 ;) .
+  eq seq2 = (x = x + 1 ; asgn) .
+  eq iteCond = (if (10 <= x / 0) {} else {} ) .
+  eq ite1 = (if (true) { x = 2 ; } else { asgn } ) .
+  eq ite2 = (if (false) { x = 2 ; } else { asgn } ) .
+  eq whileCond = (while (x / y <= 10) { x = 2 ; } ) .
+  eq whileFalse = (while (false) { asgn } ) .
+  eq whileTrue = (while (true) { asgn } ) .
+
+  eq pgm = {
+    int n, s ;
+    n = 5 ;
+    while (!(n <= -1)) {
+      s = s + (10 / n) ;
+      n = n + -1 ;
+    }
+  } .
+
+endm
