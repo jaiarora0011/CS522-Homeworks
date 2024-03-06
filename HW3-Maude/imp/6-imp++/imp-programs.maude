@@ -60,6 +60,7 @@ ops sumPgm collatzPgm countPrimesPgm : -> Pgm .
     while (++ m <= n) {
       s = s + m ;
     }
+    print(s) ;
   } .
 
   op nondet++Pgm : -> Pgm .
@@ -67,6 +68,7 @@ ops sumPgm collatzPgm countPrimesPgm : -> Pgm .
     int x ;
     x = 1 ;
     x = ++ x / (++ x / x) ;
+    print(x) ;
    } .
 
   --- Programs with I/O
@@ -109,7 +111,7 @@ ops sumPgm collatzPgm countPrimesPgm : -> Pgm .
         s = s + m ;
         m = m + 1 ;
       }
-      else { halt ; }
+      else { print(s) ; halt ; }
     }
   } .
 
@@ -122,19 +124,21 @@ ops sumPgm collatzPgm countPrimesPgm : -> Pgm .
         s = s + m ;
         m = m + 1 ;
       }
-      else { s = s / (n / m) ; }
+      else { print(s) ; s = s / (n / m) ; }
     }
+    print(s) ;
   } .
 
   --- Programs with spawn
   op sumSpawnPgm : -> Pgm .
   eq sumSpawnPgm = {
     int m, n, s ;
-    n = 1 ;   --- 100 may be too large for some semantics
+    n = 2 ;   --- 100 may be too large for some semantics
     while (m <= n) {
       spawn {s = s + m ;}
       m = m + 1 ;
     }
+    print(s) ;
   } .
 
   op spawnPgm : -> Pgm .
@@ -145,6 +149,7 @@ ops sumPgm collatzPgm countPrimesPgm : -> Pgm .
       spawn {x = x + 10 ;}
     } --- such grouping can appear, e.g., when unrolling loops
     x = x + 100 ;
+    print(x) ;
   } .
 
   --- programs with local declarations
