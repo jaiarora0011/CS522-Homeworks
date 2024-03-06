@@ -1,0 +1,21 @@
+in ../../../builtins.maude
+in ../imp-syntax.maude
+in ../../state.maude
+in ../buffer.maude
+
+in imp-semantics-bigstep
+in ../imp-programs.maude
+
+mod TEST is including IMP-SEMANTICS-BIGSTEP + IMP-PROGRAMS + IMP-DIV-ZERO . endm
+
+rewrite < 10 + 20, .State, epsilon > .
+rewrite < constDiv1, .State, epsilon > .
+rewrite < constDiv2, x |-> 1, epsilon > .
+rewrite < idDiv1, x |-> 1 & y |-> 0, epsilon > .
+rewrite < idDiv2, (x,y,w) |-> 1 & z |-> 0, epsilon > .
+rewrite < idDiv2, (x,y,z) |-> 1 & w |-> 0, epsilon > .
+rewrite < idDiv2, (x,z,w) |-> 1 & y |-> 0, epsilon > .
+rewrite < ++ x / (++ x / x), x |-> 1, epsilon > .
+search < ++ x / (++ x / x), x |-> 1, epsilon > =>! Cfg:Configuration .
+
+quit

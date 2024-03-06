@@ -1,0 +1,116 @@
+mod IMP-CONFIGURATIONS-BIGSTEP is including IMP-DESUGARED-SYNTAX + STATE .
+  including BUFFER .
+
+  sort Configuration .
+
+  --- Add an input buffer to all expression configurations
+  op <_,_,_> : AExp State Buffer -> Configuration .
+  op <_,_,_> : Int State Buffer -> Configuration .
+  op <_,_,_> : BExp State Buffer -> Configuration .
+  op <_,_,_> : Bool State Buffer -> Configuration .
+
+  --- Denotes a division by zero
+  op <`error`,_,_> : State Buffer -> Configuration . 
+
+  --- Add an input buffer to non-result configurations holding statements
+  op <_,_,_> : Stmt State Buffer -> Configuration .
+
+  sort Signal .
+  op ok : -> Signal .
+  op halting : -> Signal .
+  --- Add a signal to the result configuration for statement
+  --- Also add input and output buffers
+  op <_,_,_,_> : Signal State Buffer Buffer -> Configuration .
+
+  --- Configurations of programs: input buffer
+  op <_,_> : Pgm Buffer -> Configuration .
+  --- The resulting state and the I/O buffers
+  op <_,_,_> : State Buffer Buffer -> Configuration .
+
+endm
+
+mod IMP-SEMANTICS-BIGSTEP is including IMP-CONFIGURATIONS-BIGSTEP .
+  var I I1 I2 : Int .
+  var A1 A2 : AExp .
+  var Sigma Sigma1 Sigma2 : State .
+  var Win Win1 Win2 : Buffer .
+  var X : Id .
+
+--- Int
+  --- This leads to non-termination, so it should be commented out
+  *** rl < I, Sigma, Win > => < I, Sigma, Win > .
+
+--- Identifier
+  crl < X, Sigma, Win > => < Sigma(X), Sigma, Win >
+    if Sigma(X) =/=Bool undefined .
+
+--- Addition
+  --- Evaluate A1, then A2: Both evaluations don't lead to an error
+  crl < A1 + A2, Sigma, Win > => < I1 +Int I2, Sigma2, Win2 >
+    if < A1, Sigma, Win > => < I1, Sigma1, Win1 > /\ < A2, Sigma1, Win1 > => < I2, Sigma2, Win2 > .
+
+  --- Evaluate A2, then A1: Both evaluations don't lead to an error
+  crl < A1 + A2, Sigma, Win > => < I1 +Int I2, Sigma1, Win1 >
+    if < A2, Sigma, Win > => < I2, Sigma2, Win2 > /\ < A1, Sigma2, Win2 > => < I1, Sigma1, Win1 > .
+
+  --- Evaluate A1, which leads to an error
+  crl < A1 + A2, Sigma, Win > => < error, Sigma1, Win1 >
+    if < A1, Sigma, Win > => < error, Sigma1, Win1 > .
+
+  --- Evaluate A1, then A2, which leads to an error
+  crl < A1 + A2, Sigma, Win > => < error, Sigma2, Win2 >
+    if < A1, Sigma, Win > => < I1, Sigma1, Win1 > /\ < A2, Sigma1, Win1 > => < error, Sigma2, Win2 > .
+
+  --- Evaluate A2, which leads to an error
+  crl < A1 + A2, Sigma, Win > => < error, Sigma2, Win2 >
+    if < A2, Sigma, Win > => < error, Sigma2, Win2 > .
+
+  --- Evaluate A2, then A1, which leads to an error
+  crl < A1 + A2, Sigma, Win > => < error, Sigma1, Win1 >
+    if < A2, Sigma, Win > => < I2, Sigma2, Win2 > /\ < A1, Sigma2, Win2 > => < error, Sigma1, Win1 > .
+
+--- Division
+  --- Evaluate A1, then A2: Both evaluations don't lead to an error
+  crl < A1 / A2, Sigma, Win > => < I1 /Int I2, Sigma2, Win2 >
+    if < A1, Sigma, Win > => < I1, Sigma1, Win1 > /\ < A2, Sigma1, Win1 > => < I2, Sigma2, Win2 > /\ I2 =/=Bool 0 .
+
+  --- Evaluate A2, then A1: Both evaluations don't lead to an error
+  crl < A1 / A2, Sigma, Win > => < I1 /Int I2, Sigma1, Win1 >
+    if < A2, Sigma, Win > => < I2, Sigma2, Win2 > /\ < A1, Sigma2, Win2 > => < I1, Sigma1, Win1 > /\ I2 =/=Bool 0 .
+
+  --- Evaluate A1, which leads to an error
+  crl < A1 / A2, Sigma, Win > => < error, Sigma1, Win1 >
+    if < A1, Sigma, Win > => < error, Sigma1, Win1 > .
+
+  --- Evaluate A1, then A2, which leads to an error
+  crl < A1 / A2, Sigma, Win > => < error, Sigma2, Win2 >
+    if < A1, Sigma, Win > => < I1, Sigma1, Win1 > /\ < A2, Sigma1, Win1 > => < error, Sigma2, Win2 > .
+
+  --- Evaluate A2, which leads to an error
+  crl < A1 / A2, Sigma, Win > => < error, Sigma2, Win2 >
+    if < A2, Sigma, Win > => < error, Sigma2, Win2 > .
+
+  --- Evaluate A2, then A1, which leads to an error
+  crl < A1 / A2, Sigma, Win > => < error, Sigma1, Win1 >
+    if < A2, Sigma, Win > => < I2, Sigma2, Win2 > /\ < A1, Sigma2, Win2 > => < error, Sigma1, Win1 > .
+
+  --- Evaluate A1, then A2, which evaluates to zero
+  crl < A1 / A2, Sigma, Win > => < error, Sigma2, Win2 >
+    if < A1, Sigma, Win > => < I1, Sigma1, Win1 > /\ < A2, Sigma1, Win1 > => < 0, Sigma2, Win2 > .
+
+  --- Evaluate A2 to zero
+  crl < A1 / A2, Sigma, Win > => < error, Sigma2, Win2 >
+    if < A2, Sigma, Win > => < 0, Sigma2, Win2 > .
+
+  --- Evaluate A2, then A1, which evaluates to zero
+  crl < A1 / A2, Sigma, Win > => < error, Sigma1, Win1 >
+    if < A2, Sigma, Win > => < 0, Sigma2, Win2 > /\ < A1, Sigma2, Win2 > => < error, Sigma1, Win1 > .
+
+--- Increment
+  crl < ++ X, Sigma, Win > => < Sigma(X) +Int 1, Sigma[(Sigma(X) +Int 1) / X], Win >
+    if Sigma(X) =/=Bool undefined .
+
+--- Read
+  rl < read(), Sigma, I : Win > => < I, Sigma, Win > .
+  
+endm
