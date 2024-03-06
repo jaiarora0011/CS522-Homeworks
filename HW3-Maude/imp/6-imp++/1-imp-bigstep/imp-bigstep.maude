@@ -36,8 +36,8 @@ rewrite < whileCond, x |-> 1 & y |-> 0, epsilon > .
 rewrite < whileFalse, x |-> 1 & y |-> 0, epsilon > . --- Non-error result
 rewrite < whileTrue, x |-> 1 & y |-> 0, epsilon > .
 
-rewrite < pgm, epsilon > .
-search < pgm, 4 : 5 > =>! Cfg:Configuration .
+rewrite < whilePgm, epsilon > .
+search < whilePgm, 4 : 5 > =>! Cfg:Configuration .
 
 rewrite < sumPgm, epsilon > .
 rewrite < collatzStmt, n |-> 10 & (q,r,s) |-> 0, epsilon > .
