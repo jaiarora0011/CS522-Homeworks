@@ -70,17 +70,42 @@ mod IMP-SEMANTICS-SMALLSTEP is including IMP-CONFIGURATIONS-SMALLSTEP .
 --- Read construct
   rl o < read(), Sigma, I : Win > => < I, Sigma, Win > .
 
-  --- crl o < A1 <= A2,Sigma > => < A1' <= A2,Sigma > if o < A1,Sigma > => < A1',Sigma > .
-  --- crl o < I1 <= A2,Sigma > => < I1 <= A2',Sigma > if o < A2,Sigma > => < A2',Sigma > .
-  --- rl o < I1 <= I2,Sigma > => < I1 <=Int I2,Sigma > .
+--- Leq
+  crl o < A1 <= A2, Sigma, Win > => < A1' <= A2, Sigma', Win' >
+    if o < A1, Sigma, Win > => < A1', Sigma', Win' > .
 
-  --- crl o < ! B,Sigma > => < ! B',Sigma > if o < B,Sigma > => < B',Sigma > .
-  --- rl o < ! true,Sigma > => < false,Sigma > .
-  --- rl o < ! false,Sigma > => < true,Sigma > .
+  crl o < I1 <= A2, Sigma, Win > => < I1 <= A2', Sigma', Win' >
+    if o < A2, Sigma, Win > => < A2', Sigma', Win' > .
 
-  --- crl o < B1 && B2,Sigma > => < B1' && B2,Sigma > if o < B1,Sigma > => < B1',Sigma > .
-  --- rl o < false && B2,Sigma > => < false,Sigma > .
-  --- rl o < true && B2,Sigma > => < B2,Sigma > .
+  rl o < I1 <= I2, Sigma, Win > => < I1 <=Int I2, Sigma, Win > .
+
+  crl o < A1 <= A2, Sigma, Win > => < error, Sigma', Win' >
+    if o < A1, Sigma, Win > => < error, Sigma', Win' > .
+
+  crl o < I1 <= A2, Sigma, Win > => < error, Sigma', Win' >
+    if o < A2, Sigma, Win > => < error, Sigma', Win' > .
+
+--- Negation
+  crl o < ! B, Sigma, Win > => < ! B', Sigma', Win' >
+    if o < B, Sigma, Win > => < B', Sigma', Win' > .
+
+  rl o < ! true, Sigma, Win > => < false, Sigma, Win > .
+
+  rl o < ! false, Sigma, Win > => < true, Sigma, Win > .
+
+  crl o < ! B, Sigma, Win > => <  error, Sigma', Win' >
+    if o < B, Sigma, Win > => < error, Sigma', Win' > .
+
+--- Conjunction
+  crl o < B1 && B2, Sigma, Win > => < B1' && B2, Sigma', Win' >
+    if o < B1, Sigma, Win > => < B1', Sigma', Win' > .
+
+  rl o < false && B2, Sigma, Win > => < false, Sigma, Win > .
+
+  rl o < true && B2, Sigma, Win > => < B2, Sigma, Win > .
+
+  crl o < B1 && B2, Sigma, Win > => < error, Sigma', Win' >
+    if o < B1, Sigma, Win > => < error, Sigma', Win' > .
 
   --- rl o < {S},Sigma > => < S,Sigma > .
 

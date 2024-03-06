@@ -82,6 +82,5 @@ rewrite < shadow1Stmt, (y,z) |-> 0, epsilon > .
 search  < shadow1Stmt, (y,z) |-> 0, epsilon > =>! Cfg:Configuration .
 rewrite < shadow2Stmt, (y,z) |-> 0, epsilon > .
 search  < shadow2Stmt, (y,z) |-> 0, epsilon > =>! Cfg:Configuration .
-*** </new>
 
 quit

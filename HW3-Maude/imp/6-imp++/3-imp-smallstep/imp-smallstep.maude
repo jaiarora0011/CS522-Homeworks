@@ -21,9 +21,9 @@ search * < ++ x / (++ x / x), x |-> 1, epsilon > =>! Cfg:ExtendedConfiguration .
 rewrite * < read() / read(), .State, 4 : 2 > .
 search * < read() / read(), .State, 4 : 2 > =>! Cfg:ExtendedConfiguration .
 
---- rewrite < negLeq, x |-> 10 & y |-> 0, epsilon > .
---- rewrite < and, x |-> 2 & y |-> 0, epsilon > .        --- Non-error result
---- rewrite < and, x |-> 5 & y |-> 0, epsilon > .
+rewrite * < negLeq, x |-> 10 & y |-> 0, epsilon > .
+rewrite * < and, x |-> 2 & y |-> 0, epsilon > .        --- Non-error result
+rewrite * < and, x |-> 5 & y |-> 0, epsilon > .
 
 --- rewrite < {}, .State, epsilon > .
 --- rewrite < asgn, x |-> 1 & y |-> 0, epsilon > .
