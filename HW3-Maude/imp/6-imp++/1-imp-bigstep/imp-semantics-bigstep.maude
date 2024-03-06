@@ -31,10 +31,15 @@ endm
 
 mod IMP-SEMANTICS-BIGSTEP is including IMP-CONFIGURATIONS-BIGSTEP .
   var I I1 I2 : Int .
-  var A1 A2 : AExp .
-  var Sigma Sigma1 Sigma2 : State .
-  var Win Win1 Win2 : Buffer .
+  var A A1 A2 : AExp .
+  var B B1 B2 : BExp .
+  var T : Bool .
+  var Sigma Sigma1 Sigma2 Sigma' Sigma'' : State .
+  var Win Win1 Win2 Win' Win'' Wout Wout1 Wout2 : Buffer .
   var X : Id .
+  var P : Pgm .
+  var signal : Signal .
+  var S S1 S2 : Stmt .
 
 --- Int
   --- This leads to non-termination, so it should be commented out
@@ -112,5 +117,108 @@ mod IMP-SEMANTICS-BIGSTEP is including IMP-CONFIGURATIONS-BIGSTEP .
 
 --- Read
   rl < read(), Sigma, I : Win > => < I, Sigma, Win > .
+
+--- Int
+  --- This leads to non-termination, so it should be commented out
+  *** rl < T, Sigma, Win > => < T, Sigma, Win > .
+
+--- Leq
+  crl < A1 <= A2, Sigma, Win > => < I1 <=Int I2, Sigma2, Win2 > 
+    if < A1, Sigma, Win > => < I1, Sigma1, Win1 > /\ < A2, Sigma1, Win1 > => < I2, Sigma2, Win2 > .
+
+  crl < A1 <= A2, Sigma, Win > => < error, Sigma1, Win1 > 
+    if < A1, Sigma, Win > => < error, Sigma1, Win1 > .
+
+  crl < A1 <= A2, Sigma, Win > => < error, Sigma2, Win2 > 
+    if < A1, Sigma, Win > => < I1, Sigma1, Win1 > /\ < A2, Sigma1, Win1 > => < error, Sigma2, Win2 > .
+
+--- Negation
+  crl < ! B, Sigma, Win > => < false, Sigma', Win' >
+    if < B, Sigma, Win > => < true, Sigma', Win' > .
   
+  crl < ! B, Sigma, Win > => < true, Sigma', Win' >
+    if < B, Sigma, Win > => < false, Sigma', Win' > .
+  
+  crl < ! B, Sigma, Win > => < error, Sigma', Win' >
+    if < B, Sigma, Win > => < error, Sigma', Win' > .
+
+--- Conjunction
+  crl < B1 && B2, Sigma, Win > => < false, Sigma1, Win1 >
+    if < B1, Sigma, Win > => < false, Sigma1, Win1 > .
+  
+  crl < B1 && B2, Sigma, Win > => < error, Sigma1, Win1 >
+    if < B1, Sigma, Win > => < error, Sigma1, Win1 > .
+  
+  crl < B1 && B2, Sigma, Win > => < T, Sigma2, Win2 >
+    if < B1, Sigma, Win > => < true, Sigma1, Win1 > /\ < B2, Sigma1, Win1 > => < T, Sigma2, Win2 > .
+  
+  crl < B1 && B2, Sigma, Win > => < error, Sigma2, Win2 >
+    if < B1, Sigma, Win > => < true, Sigma1, Win1 > /\ < B2, Sigma1, Win1 > => < error, Sigma2, Win2 > .
+
+--- Empty Block
+  rl < {}, Sigma, Win > => < ok, Sigma, Win, epsilon > .
+
+--- Block
+  crl < {S}, Sigma, Win > => < signal, Sigma', Win', Wout >
+    if < S, Sigma, Win > => < signal, Sigma', Win', Wout > .
+
+--- Assignment
+  crl < X = A ;, Sigma, Win > => < ok, Sigma[I / X], Win', epsilon >
+    if < A, Sigma, Win > => < I, Sigma', Win' > /\ Sigma(X) =/=Bool undefined .
+  
+  crl < X = A ;, Sigma, Win > => < halting, Sigma', Win', epsilon >
+    if < A, Sigma, Win > => < error, Sigma', Win' > .
+
+--- Sequential
+  crl < S1 S2, Sigma, Win > => < signal, Sigma2, Win2, Wout1 : Wout2 >
+    if < S1, Sigma, Win > => < ok, Sigma1, Win1, Wout1 > /\ < S2, Sigma1, Win1 > => < signal, Sigma2, Win2, Wout2 > .
+
+  crl < S1 S2, Sigma, Win > => < halting, Sigma1, Win1, Wout1 >
+    if < S1, Sigma, Win > => < halting, Sigma1, Win1, Wout1 > .
+
+--- Conditionals
+  crl < if (B) S1 else S2, Sigma, Win > => < signal, Sigma1, Win1, Wout1 >
+    if < B, Sigma, Win > => < true, Sigma', Win' > /\ < S1, Sigma', Win' > => < signal, Sigma1, Win1, Wout1 > .
+
+  crl < if (B) S1 else S2, Sigma, Win > => < signal, Sigma2, Win2, Wout2 >
+    if < B, Sigma, Win > => < false, Sigma', Win' > /\ < S2, Sigma', Win' > => < signal, Sigma2, Win2, Wout2 > .
+
+  crl < if (B) S1 else S2, Sigma, Win > => < halting, Sigma', Win', epsilon >
+    if < B, Sigma, Win > => < error, Sigma', Win' > .
+
+--- While
+  crl < while (B) S, Sigma, Win > => < ok, Sigma', Win', epsilon >
+    if < B, Sigma, Win > => < false, Sigma', Win' > .
+
+  crl < while (B) S, Sigma, Win > => < halting, Sigma', Win', epsilon >
+    if < B, Sigma, Win > => < error, Sigma', Win' > .
+
+  crl < while (B) S, Sigma, Win > => < signal, Sigma'', Win'', Wout >
+    if < B, Sigma, Win > => < true, Sigma', Win' > /\ < S while (B) S, Sigma', Win' > => < signal, Sigma'', Win'', Wout > .
+
+--- Print
+  crl < print(A) ;, Sigma, Win > => < ok, Sigma', Win', I >
+    if < A, Sigma, Win > => < I, Sigma', Win' > .
+
+  crl < print(A) ;, Sigma, Win > => < halting, Sigma', Win', epsilon >
+    if < A, Sigma, Win > => < error, Sigma', Win' > .
+
+--- Halt
+  rl < halt ;, Sigma, Win > => < halting, Sigma, Win, epsilon > .
+
+--- Spawn
+
+
+--- Local Variables
+  crl < let X = A in S, Sigma, Win > => < signal, Sigma''[Sigma'(X) / X], Win'', Wout >
+    if < A, Sigma, Win > => < I, Sigma', Win' > /\ < S, Sigma'[I / X], Win' > => < signal, Sigma'', Win'', Wout > .
+
+--- Programs are regarded as statements in the initial state.
+--- However, without any option to output, the resulting configuration
+--- will always contain only an empty state and nothing else (empty indeed,
+--- because all the locally declared variables are removed from the state
+--- when their block ends).
+  crl < P, Win > => < Sigma, Win', Wout >
+    if < P, .State, Win > => < Sigma, Win', Wout > .
+
 endm
