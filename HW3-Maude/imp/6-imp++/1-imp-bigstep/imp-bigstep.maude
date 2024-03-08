@@ -83,4 +83,10 @@ search  < shadow1Stmt, (y,z) |-> 0, epsilon > =>! Cfg:Configuration .
 rewrite < shadow2Stmt, (y,z) |-> 0, epsilon > .
 search  < shadow2Stmt, (y,z) |-> 0, epsilon > =>! Cfg:Configuration .
 
+rewrite < imp++1, .State, epsilon > .
+search < imp++1, .State, epsilon > =>! Cfg:Configuration .
+
+rewrite < imp++2, .State, 8 > .
+search < imp++2, .State, 8 > =>! Cfg:Configuration .
+
 quit

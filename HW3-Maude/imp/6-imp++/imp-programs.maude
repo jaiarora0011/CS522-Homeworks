@@ -172,6 +172,38 @@ ops sumPgm collatzPgm countPrimesPgm : -> Pgm .
       z = x ; }
     y = x ;
   } .
+
+  op imp++1 : -> Pgm .
+  eq imp++1 = {
+    int x ;
+    {
+      spawn {x = x + 100 ;}
+      spawn {print(x) ; halt ;}
+    }
+    x = x + 1 ;
+  }.
+
+  ops imp++2 : -> Pgm .
+  eq imp++2 = {
+    int n, f, s, r, i ;
+    n = read() ;
+    f = 0 ;
+    s = 1 ;
+    if (n <= 1) {
+      print(n) ;
+      halt ;
+    } else { }
+
+    i = 2 ;
+
+    while (i <= n) {
+      r = f + s ;
+      f = s ;
+      s = r ;
+      i = ++ i ;
+    }
+    print(r) ;
+  }.
 endm
 
 mod IMP-DIV-ZERO is including IMP-SYNTAX .

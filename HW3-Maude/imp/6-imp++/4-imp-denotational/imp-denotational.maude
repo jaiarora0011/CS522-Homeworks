@@ -63,4 +63,7 @@ rewrite appCPO([[ spawnPgm ]], pairCPO(.State, epsilon)) .
 rewrite appCPO([[shadow1Stmt]], pairCPO((y,z) |-> 0, epsilon)) .
 rewrite appCPO([[shadow2Stmt]], pairCPO((y,z) |-> 0, epsilon)) .
 
+rewrite appCPO([[imp++1]], pairCPO(.State, epsilon)) .
+rewrite appCPO([[imp++2]], pairCPO(.State, 8)) .
+
 quit

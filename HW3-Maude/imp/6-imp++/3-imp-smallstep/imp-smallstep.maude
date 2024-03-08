@@ -77,4 +77,10 @@ search  * < shadow1Stmt, (y,z) |-> 0, epsilon, epsilon > =>! Cfg:ExtendedConfigu
 rewrite * < shadow2Stmt, (y,z) |-> 0, epsilon, epsilon > .
 search  * < shadow2Stmt, (y,z) |-> 0, epsilon, epsilon > =>! Cfg:ExtendedConfiguration .
 
+rewrite * < imp++1, .State, epsilon, epsilon > .
+search * < imp++1, .State, epsilon, epsilon > =>! Cfg:ExtendedConfiguration .
+
+rewrite * < imp++2, .State, 8, epsilon > .
+search * < imp++2, .State, 8, epsilon > =>! Cfg:ExtendedConfiguration .
+
 quit
