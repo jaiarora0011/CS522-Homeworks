@@ -1,0 +1,92 @@
+in ../../../builtins.maude
+in ../imp-syntax.maude
+in ../../state.maude
+in ../buffer.maude
+
+in imp-semantics-bigstep
+in ../imp-programs.maude
+
+mod TEST is including IMP-SEMANTICS-BIGSTEP + IMP-PROGRAMS + IMP-DIV-ZERO . endm
+
+rewrite < 10 + 20, .State, epsilon > .
+rewrite < constDiv1, .State, epsilon > .
+rewrite < constDiv2, x |-> 1, epsilon > .
+rewrite < idDiv1, x |-> 1 & y |-> 0, epsilon > .
+rewrite < idDiv2, (x,y,w) |-> 1 & z |-> 0, epsilon > .
+rewrite < idDiv2, (x,y,z) |-> 1 & w |-> 0, epsilon > .
+rewrite < idDiv2, (x,z,w) |-> 1 & y |-> 0, epsilon > .
+rewrite < ++ x / (++ x / x), x |-> 1, epsilon > .
+search < ++ x / (++ x / x), x |-> 1, epsilon > =>! Cfg:Configuration .
+
+rewrite < read() / read(), .State, 4 : 2 > .
+search < read() / read(), .State, 4 : 2 > =>! Cfg:Configuration .
+
+rewrite < negLeq, x |-> 10 & y |-> 0, epsilon > .
+rewrite < and, x |-> 2 & y |-> 0, epsilon > .        --- Non-error result
+rewrite < and, x |-> 5 & y |-> 0, epsilon > .
+
+rewrite < {}, .State, epsilon > .
+rewrite < asgn, x |-> 1 & y |-> 0, epsilon > .
+rewrite < seq1, x |-> 1 & y |-> 0, epsilon > .
+rewrite < seq2, x |-> 1 & y |-> 0, epsilon > .
+rewrite < iteCond, x |-> 1, epsilon > .
+rewrite < ite1, x |-> 1 & y |-> 0, epsilon > .       --- Non-error result
+rewrite < ite2, x |-> 1 & y |-> 0, epsilon > .
+rewrite < whileCond, x |-> 1 & y |-> 0, epsilon > .
+rewrite < whileFalse, x |-> 1 & y |-> 0, epsilon > . --- Non-error result
+rewrite < whileTrue, x |-> 1 & y |-> 0, epsilon > .
+
+rewrite < whilePgm, epsilon > .
+search < whilePgm, 4 : 5 > =>! Cfg:Configuration .
+
+rewrite < sumPgm, epsilon > .
+rewrite < collatzStmt, n |-> 10 & (q,r,s) |-> 0, epsilon > .
+rewrite < collatzPgm,epsilon > .
+rewrite < multiplicationStmt, x |-> 25 & y |-> 5 & (q,r,z) |-> 0, epsilon > .
+rewrite < primalityStmt, n |-> 1021 & (i,q,r,t,x,y,z) |-> 0, epsilon > .
+rewrite < countPrimesPgm, epsilon > .
+
+search  < sumPgm, epsilon > =>! Cfg:Configuration .
+
+--- Increment
+rewrite < sum++Pgm, epsilon > .
+search  < sum++Pgm, epsilon > =>! Cfg:Configuration .
+
+rewrite < nondet++Pgm, epsilon > .
+search  < nondet++Pgm, epsilon > =>! Cfg:Configuration .
+
+--- I/O
+rewrite < sumIOPgm, 100 > .
+search  < sumIOPgm, 100 > =>! Cfg:Configuration .
+rewrite < whileIOPgm, 10 : 1 : 17 : 2 : 21 : 3 : 0 : 5 : 8 : -2 : -5 : 10 > .
+search  < whileIOPgm, 10 : 1 : 17 : 2 : 21 : 3 : 0 : 5 : 8 : -2 : -5 : 10 > =>! Cfg:Configuration .
+rewrite < nondetIOStmt, .State, 10 : 20 : 30 > .
+search  < nondetIOStmt, .State, 10 : 20 : 30 > =>! Cfg:Configuration .
+
+--- Abrupt Termination
+rewrite < sumHaltPgm, epsilon > .
+--- search  < sumHaltPgm > =>! Cfg:Configuration .
+rewrite < sumDivByZeroPgm, epsilon > .
+--- search  < sumDivByZeroPgm > =>! Cfg:Configuration .
+
+--- Spawn
+rewrite < sumSpawnPgm, epsilon > .
+search  < sumSpawnPgm, epsilon > =>! Cfg:Configuration .  --- Could be slow. For n=10, there are 13 states and s can be any of 55,56,...,66.
+rewrite < spawnPgm, epsilon > .
+search  < spawnPgm, epsilon > =>! Cfg:Configuration .     --- Only one bahavior cought, when x = 111 at the end.
+
+rewrite < int s ; sumPgm, epsilon > .
+search  < int s ; sumPgm, epsilon > =>! Cfg:Configuration .
+
+rewrite < shadow1Stmt, (y,z) |-> 0, epsilon > .
+search  < shadow1Stmt, (y,z) |-> 0, epsilon > =>! Cfg:Configuration .
+rewrite < shadow2Stmt, (y,z) |-> 0, epsilon > .
+search  < shadow2Stmt, (y,z) |-> 0, epsilon > =>! Cfg:Configuration .
+
+rewrite < imp++1, .State, epsilon > .
+search < imp++1, .State, epsilon > =>! Cfg:Configuration .
+
+rewrite < imp++2, .State, 8 > .
+search < imp++2, .State, 8 > =>! Cfg:Configuration .
+
+quit

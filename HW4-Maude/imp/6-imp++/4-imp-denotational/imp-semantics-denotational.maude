@@ -1,0 +1,174 @@
+mod IMP-SEMANTICS-DENOTATIONAL is including IMP-DESUGARED-SYNTAX + STATE + BUFFER + CPO .
+  sort Syntax .
+  subsorts AExp BExp Stmt Pgm < Syntax .
+  subsorts Int Bool State < CPO .
+
+  subsort Buffer < CPO .
+
+  op [[_]] : Syntax  -> CPO .    --- Syntax interpreted in CPOs
+
+  var X : Id . var Xl : List{Id} .  var I : Int .  var A1 A2 A : AExp .
+  var T : Bool .  var B1 B2 B : BExp .  var S1 S2 S : Stmt .
+  var P : Pgm .
+  ops sigma alpha arg arg1 arg2 arg3 pi buf : -> CPOVar .
+  --- Add halting signals
+  ops error halting ok : -> CPO .
+
+--- Denotations of expression now take State x Buffer
+  eq [[I]] = funCPO pi -> tripleCPO(I, 1stCPO(pi), 2ndCPO(pi)) .
+
+  eq [[X]] = funCPO pi -> tripleCPO(_`(_`)(1stCPO(pi),X), 1stCPO(pi), 2ndCPO(pi)) .
+
+  eq [[A1 + A2]] =
+    funCPO pi ->
+      appCPO(funCPO arg1 ->
+              ifCPO(1stCPO(arg1) =/=Bool error,
+                    appCPO(funCPO arg2 ->
+                            ifCPO(1stCPO(arg2) =/=Bool error,
+                                  tripleCPO(1stCPO(arg1) +Int 1stCPO(arg2), 2ndCPO(arg2), 3rdCPO(arg2)),
+                                  arg2),
+                          appCPO([[A2]], pairCPO(2ndCPO(arg1), 3rdCPO(arg1)))),
+                    arg1),
+            appCPO([[A1]], pi)) .
+
+  eq [[A1 / A2]] =
+    funCPO pi ->
+      appCPO(funCPO arg1 ->
+              ifCPO(1stCPO(arg1) =/=Bool error,
+                    appCPO(funCPO arg2 ->
+                            ifCPO((1stCPO(arg2) =/=Bool error) andBool (1stCPO(arg2) =/=Bool 0),
+                                  tripleCPO(1stCPO(arg1) /Int 1stCPO(arg2), 2ndCPO(arg2), 3rdCPO(arg2)),
+                                  tripleCPO(error, 2ndCPO(arg2), 3rdCPO(arg2))),
+                          appCPO([[A2]], pairCPO(2ndCPO(arg1), 3rdCPO(arg1)))),
+                    arg1),
+            appCPO([[A1]], pi)) .
+
+  --- Increment
+  eq [[++ X]] =
+    funCPO pi ->
+      ifCPO(_`(_`)(1stCPO(pi),X) =/=Bool undefined,
+            tripleCPO(_`(_`)(1stCPO(pi),X) +Int 1, 1stCPO(pi)[_`(_`)(1stCPO(pi),X) +Int 1 / X], 2ndCPO(pi)),
+            undefined) .
+
+  --- Read
+  eq [[read()]] =
+    funCPO pi ->
+      tripleCPO(head(2ndCPO(pi)), 1stCPO(pi), tail(2ndCPO(pi))) .
+      
+
+  eq [[T]] = funCPO pi -> tripleCPO(T, 1stCPO(pi), 2ndCPO(pi)) .
+
+  eq [[A1 <= A2]] =
+    funCPO pi ->
+      appCPO(funCPO arg1 ->
+              ifCPO(1stCPO(arg1) =/=Bool error,
+                    appCPO(funCPO arg2 ->
+                            ifCPO(1stCPO(arg2) =/=Bool error,
+                                  tripleCPO(1stCPO(arg1) <=Int 1stCPO(arg2), 2ndCPO(arg2), 3rdCPO(arg2)),
+                                  arg2),
+                          appCPO([[A2]], pairCPO(2ndCPO(arg1), 3rdCPO(arg1)))),
+                    arg1),
+            appCPO([[A1]], pi)) .
+
+  eq [[! B]] =
+    funCPO pi ->
+      appCPO(funCPO arg ->
+              ifCPO(1stCPO(arg) ==Bool error,
+			              arg,
+						        tripleCPO(notBool 1stCPO(arg), 2ndCPO(arg), 3rdCPO(arg))),
+			      appCPO([[B]], pi)) .
+
+  eq [[B1 && B2]] =
+    funCPO pi ->
+      appCPO(funCPO arg1 ->
+              ifCPO(1stCPO(arg1) ==Bool error orBool 1stCPO(arg1) ==Bool false,
+                    arg1,
+                    appCPO([[B2]], pairCPO(2ndCPO(arg1), 3rdCPO(arg1)))),
+            appCPO([[B1]], pi)) .
+
+  eq [[{}]] = funCPO pi -> quadrupleCPO(1stCPO(pi), 2ndCPO(pi), epsilon, ok) .
+
+  eq [[{S}]] = funCPO pi -> appCPO([[S]], pi) .
+
+  eq [[X = A ;]] =
+    funCPO pi ->
+      appCPO(funCPO arg ->
+              ifCPO(1stCPO(arg) ==Bool error,
+			              quadrupleCPO(2ndCPO(arg),3rdCPO(arg), epsilon, halting),
+                    ifCPO(_`(_`)(1stCPO(pi), X) =/=Bool undefined,
+						          quadrupleCPO(2ndCPO(arg)[1stCPO(arg) / X], 3rdCPO(arg), epsilon, ok),
+							        undefined)
+                    ),
+            appCPO([[A]], pi)) .
+
+  eq [[S1 S2]] =
+    funCPO pi ->
+      appCPO(funCPO arg1 ->
+              ifCPO(4thCPO(arg1) ==Bool halting,
+			              arg1,
+						        appCPO(funCPO arg2 ->
+                            quadrupleCPO(1stCPO(arg2), 2ndCPO(arg2), 3rdCPO(arg1) : 3rdCPO(arg2), 4thCPO(arg2)),
+                          appCPO([[S2]], pairCPO(1stCPO(arg1), 2ndCPO(arg1))))),
+            appCPO([[S1]], pi)) .
+
+  eq [[if (B) S1 else S2]] =
+    funCPO pi ->
+      appCPO(funCPO arg ->
+              ifCPO(1stCPO(arg) ==Bool error,
+                    quadrupleCPO(2ndCPO(arg), 3rdCPO(arg), epsilon, halting),
+                    ifCPO(1stCPO(arg),
+                          appCPO([[S1]], pi),
+                          appCPO([[S2]], pi))),
+            appCPO([[B]], pi)) .
+
+  eq [[while (B) S]] =
+    fixCPO(funCPO alpha ->
+            funCPO pi ->
+              appCPO(funCPO arg1 ->
+                      ifCPO(1stCPO(arg1) ==Bool error,
+						                quadrupleCPO(2ndCPO(arg1), 3rdCPO(arg1), epsilon, halting),
+								            ifCPO(1stCPO(arg1),
+								                  appCPO(funCPO arg2 ->
+                                          ifCPO(4thCPO(arg2) ==Bool halting,
+											                          arg2,
+                                                appCPO(funCPO arg3 ->
+                                                        quadrupleCPO(1stCPO(arg3), 2ndCPO(arg3), 3rdCPO(arg2) : 3rdCPO(arg3), 4thCPO(arg3)),
+                                                appCPO(alpha, pairCPO(1stCPO(arg2), 2ndCPO(arg2))))),
+														            appCPO([[S]], pairCPO(2ndCPO(arg1), 3rdCPO(arg1)))),
+                                  quadrupleCPO(2ndCPO(arg1), 3rdCPO(arg1), epsilon, ok))),
+						        appCPO([[B]], pi))) .
+
+--- Print
+  eq [[print(A);]] =
+    funCPO pi ->
+      appCPO(funCPO arg ->
+              ifCPO(1stCPO(arg) ==Bool error,
+                    quadrupleCPO(2ndCPO(arg), 3rdCPO(arg), epsilon, halting),
+                    quadrupleCPO(2ndCPO(arg), 3rdCPO(arg), 1stCPO(arg), ok)),
+            appCPO([[A]], pi)) .
+
+--- Halt
+  eq [[halt ;]] = funCPO pi -> quadrupleCPO(1stCPO(pi), 2ndCPO(pi), epsilon, halting) .
+
+--- Spawn
+  eq [[spawn S]] = [[S]] .
+
+*** <new> Added the denotational semantics of let
+  eq [[let X = A in S]] = 
+    funCPO pi ->
+      appCPO(funCPO arg ->
+              ifCPO(1stCPO(arg) ==Bool error,
+                    quadrupleCPO(2ndCPO(arg), 3rdCPO(arg), epsilon, halting),
+                    appCPO(funCPO arg2 ->
+                            quadrupleCPO(1stCPO(arg2)[_`(_`)(2ndCPO(arg),X) / X], 2ndCPO(arg2), 3rdCPO(arg2), 4thCPO(arg2)),
+                          appCPO([[S]], pairCPO(2ndCPO(arg)[1stCPO(arg) / X], 3rdCPO(arg))))),
+            appCPO([[A]], pi)) .
+
+*** </new>
+
+*** <new> Removed the denotational semantics of programs, because programs
+*** are now just statements, so the semantics above suffices.
+---  eq [[(int Xl ; S)]] = appCPO([[S]],(Xl |-> 0)) .
+*** </new>
+
+endm

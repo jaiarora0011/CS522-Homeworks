@@ -1,0 +1,69 @@
+in ../../../builtins.maude
+in ../imp-syntax.maude
+in ../../state.maude
+in ../buffer.maude
+
+in imp-semantics-denotational
+in ../imp-programs.maude
+
+mod TEST is including IMP-SEMANTICS-DENOTATIONAL + IMP-PROGRAMS + IMP-DIV-ZERO .  endm
+
+rewrite appCPO([[sumPgm]], pairCPO(.State, epsilon))  .
+rewrite appCPO([[collatzStmt]], pairCPO(n |-> 10 & (q,r,s) |-> 0, epsilon)) .
+rewrite appCPO([[collatzPgm]], pairCPO(.State, epsilon)) .
+rewrite appCPO([[multiplicationStmt]] , pairCPO(x |-> 25 & y |-> 5 & (q,r,z) |-> 0, epsilon) ) .
+rewrite appCPO([[primalityStmt]], pairCPO(n |-> 1021 & (i,q,r,t,x,y,z) |-> 0, epsilon)) .
+rewrite appCPO([[countPrimesPgm]], pairCPO(.State, epsilon)) .
+
+rewrite appCPO([[++ x / (++ x / x)]], pairCPO(x |-> 1, epsilon)) .
+
+rewrite appCPO([[read() / read()]], pairCPO(.State, 4 : 2)) .
+
+rewrite appCPO([[constDiv1]], pairCPO(.State, epsilon) ) .
+rewrite appCPO([[constDiv2]], pairCPO(x |-> 1, epsilon) ) .
+rewrite appCPO([[idDiv1]], pairCPO(x |-> 1 & y |-> 0, epsilon) ) .
+rewrite appCPO([[idDiv2]], pairCPO((x,y,w) |-> 1 & z |-> 0, epsilon) ) .
+rewrite appCPO([[idDiv2]], pairCPO((x,y,z) |-> 1 & w |-> 0, epsilon) ) .
+rewrite appCPO([[idDiv2]], pairCPO((x,z,w) |-> 1 & y |-> 0, epsilon) ) .
+
+rewrite appCPO([[negLeq]], pairCPO(x |-> 10 & y |-> 0, epsilon) ) .
+rewrite appCPO([[and]], pairCPO(x |-> 2 & y |-> 0, epsilon) ) .        --- Non-error result
+rewrite appCPO([[and]], pairCPO(x |-> 5 & y |-> 0, epsilon) ) .
+
+rewrite appCPO([[asgn]], pairCPO(x |-> 1 & y |-> 0, epsilon) ) .
+rewrite appCPO([[seq1]], pairCPO(x |-> 1 & y |-> 0, epsilon) ) .
+rewrite appCPO([[seq2]], pairCPO(x |-> 1 & y |-> 0, epsilon) ) .
+rewrite appCPO([[iteCond]], pairCPO(x |-> 1, epsilon) ) .
+rewrite appCPO([[ite1]], pairCPO(x |-> 1 & y |-> 0, epsilon) ) .       --- Non-error result
+rewrite appCPO([[ite2]], pairCPO(x |-> 1 & y |-> 0, epsilon) ) .
+rewrite appCPO([[whileCond]], pairCPO(x |-> 1 & y |-> 0, epsilon) ) .
+rewrite appCPO([[whileFalse]], pairCPO(x |-> 1 & y |-> 0, epsilon) ) . --- Non-error result
+rewrite appCPO([[whileTrue]], pairCPO(x |-> 1 & y |-> 0, epsilon) ) .
+
+rewrite appCPO([[whilePgm]], pairCPO(.State, epsilon)) .
+
+--- Increment
+rewrite appCPO([[ sum++Pgm ]], pairCPO(.State, epsilon)) .
+rewrite appCPO([[ nondet++Pgm ]], pairCPO(.State, epsilon)) .
+
+--- I/O
+rewrite appCPO([[sumIOPgm]], pairCPO(.State, 100)) .
+rewrite appCPO([[whileIOPgm]], pairCPO(.State, 10 : 1 : 17 : 2 : 21 : 3 : 0 : 5 : 8 : -2 : -5 : 10)) .
+rewrite appCPO([[nondetIOStmt]], pairCPO(.State, 10 : 20 : 30)) .
+
+--- Halting
+rewrite appCPO([[sumHaltPgm]], pairCPO(.State, 100)) .
+rewrite appCPO([[sumDivByZeroPgm]], pairCPO(.State, 100))  .
+
+--- --- Spawn
+rewrite appCPO([[ sumSpawnPgm ]], pairCPO(.State, epsilon)) .
+rewrite appCPO([[ spawnPgm ]], pairCPO(.State, epsilon)) .
+
+--- --- Locals
+rewrite appCPO([[shadow1Stmt]], pairCPO((y,z) |-> 0, epsilon)) .
+rewrite appCPO([[shadow2Stmt]], pairCPO((y,z) |-> 0, epsilon)) .
+
+rewrite appCPO([[imp++1]], pairCPO(.State, epsilon)) .
+rewrite appCPO([[imp++2]], pairCPO(.State, 8)) .
+
+quit
