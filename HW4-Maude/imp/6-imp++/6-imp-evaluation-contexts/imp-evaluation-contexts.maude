@@ -1,0 +1,91 @@
+in ../../../builtins.maude
+in ../imp-syntax.maude
+in ../../state.maude
+in ../buffer.maude
+
+in imp-split-plug-evaluation-contexts
+
+search split(3 <= (2 + X) / 7) =>! Syn:[Syntax] .
+
+--- Below we show the three different ways to represent the reduction semantics
+--- with evaluation contexts of IMP into rewrite logic.
+--- Include which one of them you want.
+
+---in imp-semantics-evaluation-contexts-1
+---in imp-semantics-evaluation-contexts-2
+in imp-semantics-evaluation-contexts-3
+
+in ../imp-programs.maude
+
+mod TEST is including IMP-SEMANTICS-EVALUATION-CONTEXTS + IMP-PROGRAMS + IMP-DIV-ZERO .  endm
+
+--- set trace on .
+rewrite * < {}, .State, epsilon, epsilon > .
+rewrite * < asgn, x |-> 1 & y |-> 0, epsilon, epsilon > .
+rewrite * < seq1, x |-> 1 & y |-> 0, epsilon, epsilon > .
+rewrite * < seq2, x |-> 1 & y |-> 0, epsilon, epsilon > .
+rewrite * < iteCond, x |-> 1, epsilon, epsilon > .
+rewrite * < ite1, x |-> 1 & y |-> 0, epsilon, epsilon > .       --- Non-error result
+rewrite * < ite2, x |-> 1 & y |-> 0, epsilon, epsilon > .
+rewrite * < whileCond, x |-> 1 & y |-> 0, epsilon, epsilon > .
+rewrite * < whileFalse, x |-> 1 & y |-> 0, epsilon, epsilon > . --- Non-error result
+rewrite * < whileTrue, x |-> 1 & y |-> 0, epsilon, epsilon > .
+
+rewrite * < whilePgm, epsilon > .
+search * < whilePgm, 4 : 5 > =>! Cfg:Configuration .
+
+
+rewrite * < sumPgm, epsilon > .
+rewrite * < collatzStmt, n |-> 10 & (q,r,s) |-> 0, epsilon, epsilon > .
+rewrite * < collatzPgm, epsilon > .
+rewrite * < multiplicationStmt, x |-> 25 & y |-> 5 & (q,r,z) |-> 0, epsilon, epsilon > .
+rewrite * < primalityStmt, n |-> 1021 & (i,q,r,t,x,y,z) |-> 0, epsilon, epsilon > .
+rewrite * < countPrimesPgm, epsilon > .
+
+search * < sumPgm, epsilon > =>! Cfg:ExtendedConfiguration .
+
+--- Increment
+rewrite * < sum++Pgm, epsilon > .
+search  * < sum++Pgm, epsilon > =>! Cfg:ExtendedConfiguration .
+
+rewrite * < nondet++Pgm, epsilon > .
+search  * < nondet++Pgm, epsilon > =>! Cfg:ExtendedConfiguration .
+
+--- Input/Output
+rewrite * < sumIOPgm, 100 > .
+search  * < sumIOPgm, 100 > =>! Cfg:ExtendedConfiguration .
+rewrite * < whileIOPgm, 10 : 1 : 17 : 2 : 21 : 3 : 0 : 5 : 8 : -2 : -5 : 10 > .
+search  * < whileIOPgm, 10 : 1 : 17 : 2 : 21 : 3 : 0 : 5 : 8 : -2 : -5 : 10 > =>! Cfg:ExtendedConfiguration .
+rewrite * < nondetIOStmt, .State, 10 : 20 : 30, epsilon > .
+search  * < nondetIOStmt, .State, 10 : 20 : 30, epsilon > =>! Cfg:ExtendedConfiguration .
+
+--- Halting
+rewrite * < sumHaltPgm, epsilon > .
+search  * < sumHaltPgm, epsilon > =>! Cfg:ExtendedConfiguration .
+
+rewrite * < sumDivByZeroPgm, epsilon > .
+search  * < sumDivByZeroPgm, epsilon > =>! Cfg:ExtendedConfiguration .
+
+--- Spawn
+rewrite * < sumSpawnPgm, epsilon > .
+search  * < sumSpawnPgm, epsilon > =>! Cfg:ExtendedConfiguration .  --- Slow! For n=1, there are 2522 states and s can be any of 0,1,2,3,4.
+                                                           --- For n=2, there are 83053 states and s can be any of 0,1,...,9 (took 5 min).
+rewrite * < spawnPgm, epsilon > .
+search  * < spawnPgm, epsilon > =>! Cfg:ExtendedConfiguration .
+
+--- Let
+rewrite * < int s ; sumPgm, epsilon > .
+search  * < int s ; sumPgm, epsilon > =>! Cfg:ExtendedConfiguration .
+
+rewrite * < shadow1Stmt, (y,z) |-> 0, epsilon, epsilon > .
+search  * < shadow1Stmt, (y,z) |-> 0, epsilon, epsilon > =>! Cfg:ExtendedConfiguration .
+rewrite * < shadow2Stmt, (y,z) |-> 0, epsilon, epsilon > .
+search  * < shadow2Stmt, (y,z) |-> 0, epsilon, epsilon > =>! Cfg:ExtendedConfiguration .
+
+rewrite * < imp++1, .State, epsilon, epsilon > .
+search * < imp++1, .State, epsilon, epsilon > =>! Cfg:ExtendedConfiguration .
+
+rewrite * < imp++2, .State, 8, epsilon > .
+search * < imp++2, .State, 8, epsilon > =>! Cfg:ExtendedConfiguration .
+
+quit
