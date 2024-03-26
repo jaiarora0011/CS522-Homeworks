@@ -1,0 +1,70 @@
+in ../../../builtins.maude
+in ../imp-syntax.maude
+in ../../state.maude
+in ../buffer.maude
+
+in cham
+in imp-heating-cooling-cham
+
+search {| X = 3 / (X + 2) ; |} =>! Sol:Solution .
+search {| X = (Y:Id + Z:Id) / (X + 2) ; |} =>! Sol:Solution .
+
+in imp-semantics-cham
+
+in ../imp-programs.maude
+
+mod TEST is including IMP-SEMANTICS-CHAM + IMP-PROGRAMS .  endm
+
+rewrite {| {| sumPgm |} # {| s |-> 0 |} # {| input # epsilon |} # {| output # epsilon |} |} .
+rewrite {| {| collatzStmt |} # {| n |-> 10 & (q,r,s) |-> 0 |} # {| input # epsilon |} # {| output # epsilon |} |} .
+rewrite {| {| collatzPgm |} # {| s |-> 0 |} # {| input # epsilon |} # {| output # epsilon |} |} .
+rewrite {| {| multiplicationStmt |} # {| x |-> 25 & y |-> 5 & (q,r,z) |-> 0 |} # {| input # epsilon |} # {| output # epsilon |} |} .
+rewrite {| {| primalityStmt |} # {| n |-> 1021 & (i,q,r,t,x,y,z) |-> 0 |} # {| input # epsilon |} # {| output # epsilon |} |} .
+rewrite {| {| countPrimesPgm |} # {| s |-> 0 |} # {| input # epsilon |} # {| output # epsilon |} |} .
+
+search {| {| sumPgm |} # {| s |-> 0 |} # {| input # epsilon |} # {| output # epsilon |} |} =>! Sol:Solution .
+
+--- Increment
+rewrite {| {| sum++Pgm |} # {| .State |} # {| input # epsilon |} # {| output # epsilon |} |} .
+search  {| {| sum++Pgm |} # {| .State |} # {| input # epsilon |} # {| output # epsilon |} |} =>! Sol:Solution .
+
+rewrite {| {| nondet++Pgm |} # {| .State |} # {| input # epsilon |} # {| output # epsilon |} |} .
+search  {| {| nondet++Pgm |} # {| .State |} # {| input # epsilon |} # {| output # epsilon |} |} =>! Sol:Solution .
+
+--- Input/Output
+search  {| {| sumIOPgm |} # {| .State |} # {| input # 100 |} # {| output # epsilon |} |} =>! Sol:Solution .
+rewrite {| {| whileIOPgm |} # {| .State |} # {| input # 10 : 1 : 17 : 2 : 21 : 3 : 0 : 5 : 8 : -2 : -5 : 10 |} # {| output # epsilon |} |} .
+search  {| {| whileIOPgm |} # {| .State |} # {| input # 10 : 1 : 17 : 2 : 21 : 3 : 0 : 5 : 8 : -2 : -5 : 10 |} # {| output # epsilon |} |}  =>! Sol:Solution .
+rewrite {| {| nondetIOStmt |} # {| .State |} # {| input # 10 : 20 : 30 |} # {| output # epsilon |} |} .
+search  {| {| nondetIOStmt |} # {| .State |} # {| input # 10 : 20 : 30 |} # {| output # epsilon |} |} =>! Sol:Solution .
+
+--- Halting
+rewrite {| {| sumHaltPgm |} # {| .State |} # {| input # epsilon |} # {| output # epsilon |} |} .
+search  {| {| sumHaltPgm |} # {| .State |} # {| input # epsilon |} # {| output # epsilon |} |} =>! Sol:Solution .
+
+rewrite {| {| sumDivByZeroPgm |} # {| .State |} # {| input # epsilon |} # {| output # epsilon |} |} .
+search  {| {| sumDivByZeroPgm |} # {| .State |} # {| input # epsilon |} # {| output # epsilon |} |} =>! Sol:Solution .
+
+--- Spawn
+rewrite {| {| sumSpawnPgm |} # {| .State |} # {| input # epsilon |} # {| output # epsilon |} |} .
+search  {| {| sumSpawnPgm |} # {| .State |} # {| input # epsilon |} # {| output # epsilon |} |} =>! Sol:Solution .  --- Slow! For n=1, there are 15100 states and s can be any of 0,1,2,3,4.
+                                              --- For n=2, there are 430945 states and s can be any of 0,1,...,9 (took about 1 min).
+rewrite {| {| spawnPgm |} # {| .State |} # {| input # epsilon |} # {| output # epsilon |} |} .
+search  {| {| spawnPgm |} # {| .State |} # {| input # epsilon |} # {| output # epsilon |} |} =>! Sol:Solution .
+
+--- Let
+rewrite {| {| int s ; sumPgm |} # {| .State |} # {| input # epsilon |} # {| output # epsilon |} |} .
+search  {| {| int s ; sumPgm |} # {| .State |} # {| input # epsilon |} # {| output # epsilon |} |} =>! Sol:Solution .
+
+rewrite {| {| shadow1Stmt |} # {| (y,z) |-> 0 |} # {| input # epsilon |} # {| output # epsilon |} |} .
+search  {| {| shadow1Stmt |} # {| (y,z) |-> 0 |} # {| input # epsilon |} # {| output # epsilon |} |} =>! Sol:Solution .
+rewrite {| {| shadow2Stmt |} # {| (y,z) |-> 0 |} # {| input # epsilon |} # {| output # epsilon |} |} .
+search  {| {| shadow2Stmt |} # {| (y,z) |-> 0 |} # {| input # epsilon |} # {| output # epsilon |} |} =>! Sol:Solution .
+
+rewrite {| {| imp++1 |} # {| .State |} # {| input # epsilon |} # {| output # epsilon |} |} .
+search {| {| imp++1 |} # {| .State |} # {| input # epsilon |} # {| output # epsilon |} |} =>! Sol:Solution .
+
+rewrite {| {| imp++2 |} # {| .State |} # {| input # 8 |} # {| output # epsilon |} |} .
+search {| {| imp++2 |} # {| .State |} # {| input # 8 |} # {| output # epsilon |} |} =>! Sol:Solution .
+
+quit
