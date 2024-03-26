@@ -1,0 +1,96 @@
+in ../../../builtins.maude
+in ../imp-syntax.maude
+in ../../state.maude
+in ../buffer.maude
+
+in imp-semantics-msos
+
+in ../imp-programs.maude
+
+mod TEST is including IMP-SEMANTICS-MSOS + IMP-PROGRAMS + IMP-DIV-ZERO .  endm
+
+rewrite * < 10 + 20, (state = .State, input = epsilon, output = epsilon, halting = false) > .
+rewrite * < constDiv1, (state = .State, input = epsilon, output = epsilon, halting = false) > .
+rewrite * < constDiv2, (state = x |-> 1, input = epsilon, output = epsilon, halting = false) > .
+rewrite * < idDiv1, (state = (x |-> 1 & y |-> 0), input = epsilon, output = epsilon, halting = false) > .
+rewrite * < idDiv2, (state = ((x,y,w) |-> 1 & z |-> 0), input = epsilon, output = epsilon, halting = false) > .
+rewrite * < idDiv2, (state = ((x,y,z) |-> 1 & w |-> 0), input = epsilon, output = epsilon, halting = false) > .
+rewrite * < idDiv2, (state = ((x,z,w) |-> 1 & y |-> 0), input = epsilon, output = epsilon, halting = false) > .
+rewrite * < ++ x / (++ x / x), (state = x |-> 1, input = epsilon, output = epsilon, halting = false) > .
+search * < ++ x / (++ x / x), (state = x |-> 1, input = epsilon, output = epsilon, halting = false) > =>! Cfg:ExtendedConfiguration .
+
+rewrite * < read() / read(), (state = .State, input = 4 : 2, output = epsilon, halting = false) > .
+search * < read() / read(), (state = .State, input = 4 : 2, output = epsilon, halting = false)  > =>! Cfg:ExtendedConfiguration .
+
+rewrite * < negLeq, (state = (x |-> 10 & y |-> 0), input = epsilon, output = epsilon, halting = false) > .
+rewrite * < and, (state = (x |-> 2 & y |-> 0), input = epsilon, output = epsilon, halting = false) > .        --- Non-error result
+rewrite * < and, (state = (x |-> 5 & y |-> 0), input = epsilon, output = epsilon, halting = false) > .
+
+rewrite * < {}, (state = .State, input = epsilon, output = epsilon, halting = false) > .
+rewrite * < asgn, (state = (x |-> 1 & y |-> 0), input = epsilon, output = epsilon, halting = false) > .
+rewrite * < seq1, (state = (x |-> 1 & y |-> 0), input = epsilon, output = epsilon, halting = false) > .
+rewrite * < seq2, (state = (x |-> 1 & y |-> 0), input = epsilon, output = epsilon, halting = false) > .
+rewrite * < iteCond, (state = x |-> 1, input = epsilon, output = epsilon, halting = false) > .
+rewrite * < ite1, (state = (x |-> 1 & y |-> 0), input = epsilon, output = epsilon, halting = false) > .       --- Non-error result
+rewrite * < ite2, (state = (x |-> 1 & y |-> 0), input = epsilon, output = epsilon, halting = false) > .
+rewrite * < whileCond, (state = (x |-> 1 & y |-> 0), input = epsilon, output = epsilon, halting = false) > .
+rewrite * < whileFalse, (state = (x |-> 1 & y |-> 0), input = epsilon, output = epsilon, halting = false) > . --- Non-error result
+rewrite * < whileTrue, (state = (x |-> 1 & y |-> 0), input = epsilon, output = epsilon, halting = false) > .
+
+rewrite * < whilePgm, epsilon > .
+search * < whilePgm, 4 : 5 > =>! Cfg:ExtendedConfiguration .
+
+rewrite * < sumPgm, epsilon > .
+rewrite * < collatzStmt, (state = (n |-> 10 & (q,r,s) |-> 0), input = epsilon, output = epsilon, halting = false) > .
+rewrite * < collatzPgm, epsilon > .
+rewrite * < multiplicationStmt, (state = (x |-> 25 & y |-> 5 & (q,r,z) |-> 0), input = epsilon, output = epsilon, halting = false) > .
+rewrite * < primalityStmt, (state = (n |-> 1021 & (i,q,r,t,x,y,z) |-> 0), input = epsilon, output = epsilon, halting = false) > .
+rewrite * < countPrimesPgm, epsilon > .
+
+search * < sumPgm, epsilon > =>! Cfg:ExtendedConfiguration .
+
+--- Increment
+rewrite * < sum++Pgm, epsilon > .
+search  * < sum++Pgm, epsilon > =>! Cfg:ExtendedConfiguration .
+
+rewrite * < nondet++Pgm, epsilon > .
+search  * < nondet++Pgm, epsilon > =>! Cfg:ExtendedConfiguration .
+
+--- Input/Output
+rewrite * < sumIOPgm, 100 > .
+search  * < sumIOPgm, 100 > =>! Cfg:ExtendedConfiguration .
+rewrite * < whileIOPgm, 10 : 1 : 17 : 2 : 21 : 3 : 0 : 5 : 8 : -2 : -5 : 10 > .
+search  * < whileIOPgm, 10 : 1 : 17 : 2 : 21 : 3 : 0 : 5 : 8 : -2 : -5 : 10 > =>! Cfg:ExtendedConfiguration .
+rewrite * < nondetIOStmt, (state = .State, input = 10 : 20 : 30, output = epsilon, halting = false) > .
+search  * < nondetIOStmt, (state = .State, input = 10 : 20 : 30, output = epsilon, halting = false) > =>! Cfg:ExtendedConfiguration .
+
+--- Halting
+rewrite * < sumHaltPgm, epsilon > .
+search  * < sumHaltPgm, epsilon > =>! Cfg:ExtendedConfiguration .
+
+rewrite * < sumDivByZeroPgm, epsilon > .
+search  * < sumDivByZeroPgm, epsilon > =>! Cfg:ExtendedConfiguration .
+
+--- Threads
+rewrite * < sumSpawnPgm, epsilon > .
+search  * < sumSpawnPgm, epsilon > =>! Cfg:ExtendedConfiguration .  --- Same comments as in the case of small-step SOS
+
+rewrite * < spawnPgm, epsilon > .
+search  * < spawnPgm, epsilon > =>! Cfg:ExtendedConfiguration .
+
+--- Locals
+rewrite * < int s ; sumPgm, epsilon > .
+search  * < int s ; sumPgm, epsilon > =>! Cfg:ExtendedConfiguration .
+
+rewrite * < shadow1Stmt, (state = (y,z) |-> 0, input = epsilon, output = epsilon, halting = false) > .
+search  * < shadow1Stmt, (state = (y,z) |-> 0, input = epsilon, output = epsilon, halting = false) > =>! Cfg:ExtendedConfiguration .
+rewrite * < shadow2Stmt, (state = (y,z) |-> 0, input = epsilon, output = epsilon, halting = false) > .
+search  * < shadow2Stmt, (state = (y,z) |-> 0, input = epsilon, output = epsilon, halting = false) > =>! Cfg:ExtendedConfiguration .
+
+rewrite * < imp++1, epsilon > .
+search * < imp++1, epsilon > =>! Cfg:ExtendedConfiguration .
+
+rewrite * < imp++2, 8 > .
+search * < imp++2, 8 > =>! Cfg:ExtendedConfiguration .
+
+quit
