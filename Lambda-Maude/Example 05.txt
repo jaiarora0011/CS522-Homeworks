@@ -1,0 +1,249 @@
+                     \||||||||||||||||||/
+                   --- Welcome to Maude ---
+                     /||||||||||||||||||\
+            Maude alpha96b built: Nov 15 2012 18:03:52
+            Copyright 1997-2011 SRI International
+                   Wed Mar 20 10:46:58 2013
+==========================================
+rewrite in TEST-SUBSTITUTION : (/\ x . /\ y . x y z)[x / z] .
+rewrites: 82 in 0ms cpu (0ms real) (~ rewrites/second)
+result Exp: /\ '$1 . /\ y . '$1 y x
+==========================================
+rewrite in TEST-SUBSTITUTION : (/\ u . /\ x . /\ y . x y z)[x / z] .
+rewrites: 96 in 0ms cpu (0ms real) (~ rewrites/second)
+result Exp: /\ u . /\ '$2 . /\ y . '$2 y x
+==========================================
+rewrite in TEST-SUBSTITUTION : (/\ x . x z) (/\ x . /\ y . x y z)[x / z] .
+rewrites: 123 in 0ms cpu (0ms real) (~ rewrites/second)
+result Exp: (/\ '$3 . '$3 x) (/\ '$4 . /\ y . '$4 y x)
+==========================================
+rewrite in COMBINATORY-LOGIC : S K K x .
+rewrites: 2 in 0ms cpu (0ms real) (~ rewrites/second)
+result Id: x
+==========================================
+rewrite in COMBINATORY-LOGIC : S K K (S K K) .
+rewrites: 2 in 0ms cpu (0ms real) (~ rewrites/second)
+result Exp: S K K
+==========================================
+rewrite in DE-BRUIJN : (/\ {0}) x .
+rewrites: 6 in 0ms cpu (0ms real) (~ rewrites/second)
+result Id: x
+==========================================
+rewrite in DE-BRUIJN : (/\ /\ {0}) x .
+rewrites: 13 in 0ms cpu (0ms real) (~ rewrites/second)
+result Exp: /\ {0}
+==========================================
+rewrite in DE-BRUIJN : (/\ /\ {1}) x .
+rewrites: 12 in 0ms cpu (0ms real) (~ rewrites/second)
+result Exp: /\ x
+==========================================
+rewrite in DE-BRUIJN : (/\ /\ x {1} y) x .
+rewrites: 20 in 0ms cpu (0ms real) (~ rewrites/second)
+result Exp: /\ x x y
+==========================================
+rewrite in DE-BRUIJN-OPTIMIZED : (/\ {0}) x .
+rewrites: 2 in 0ms cpu (0ms real) (~ rewrites/second)
+result Id: x
+==========================================
+rewrite in DE-BRUIJN-OPTIMIZED : (/\ /\ {0}) x .
+rewrites: 6 in 0ms cpu (0ms real) (~ rewrites/second)
+result Exp: /\ {0}
+==========================================
+rewrite in DE-BRUIJN-OPTIMIZED : (/\ /\ {1}) x .
+rewrites: 5 in 0ms cpu (0ms real) (~ rewrites/second)
+result Exp: /\ x
+==========================================
+rewrite in DE-BRUIJN-OPTIMIZED : (/\ /\ x {1} y) x .
+rewrites: 9 in 0ms cpu (0ms real) (~ rewrites/second)
+result Exp: /\ x x y
+==========================================
+rewrite in LAMBDA : (/\ x . x) y .
+rewrites: 8 in 0ms cpu (0ms real) (~ rewrites/second)
+result Id: y
+==========================================
+rewrite in LAMBDA : (/\ x . x) (/\ x . x) .
+rewrites: 8 in 0ms cpu (0ms real) (~ rewrites/second)
+result Val: /\ x . x
+==========================================
+rewrite in LAMBDA : (/\ f . (/\ x . f x) y) g .
+rewrites: 48 in 0ms cpu (0ms real) (~ rewrites/second)
+result Exp: g y
+==========================================
+rewrite in LAMBDA : (/\ z . z z) (/\ x . /\ y . x y) .
+rewrites: 111 in 0ms cpu (0ms real) (~ rewrites/second)
+result Val: /\ y . /\ '$5 . y '$5
+==========================================
+rewrite in LAMBDA : (/\ z . /\ a . /\ b . z a b) (a b) .
+rewrites: 0 in 0ms cpu (0ms real) (~ rewrites/second)
+result Exp: (/\ z . /\ a . /\ b . z a b) (a b)
+==========================================
+rewrite in LAMBDA : /\ x . x x .
+rewrites: 0 in 0ms cpu (0ms real) (~ rewrites/second)
+result Val: /\ x . x x
+==========================================
+rewrite in LAMBDA : /\ x . f (x x) .
+rewrites: 0 in 0ms cpu (0ms real) (~ rewrites/second)
+result Val: /\ x . f (x x)
+==========================================
+rewrite in CURRYING : (/\ x y z . x y z) a b .
+rewrites: 84 in 0ms cpu (0ms real) (~ rewrites/second)
+result Val: /\ z . a b z
+==========================================
+rewrite in CURRYING : (/\ x y z . x y z) (/\ x y z . x y z) a b .
+rewrites: 328 in 0ms cpu (0ms real) (~ rewrites/second)
+result Val: /\ z . a b z
+==========================================
+rewrite in CURRYING : (/\ x y z . (/\ x y z . x y z) y z) (/\ x y z . x y z) a b .
+rewrites: 338 in 0ms cpu (0ms real) (~ rewrites/second)
+result Val: /\ z . a b z
+==========================================
+rewrite in CHURCH-BOOLEANS : and $true $false .
+rewrites: 260 in 0ms cpu (0ms real) (~ rewrites/second)
+result Val: /\ x . /\ y . y
+==========================================
+rewrite in CHURCH-BOOLEANS : and (and x y) z .
+rewrites: 87 in 0ms cpu (0ms real) (~ rewrites/second)
+result Exp: (/\ x . /\ y . x y (/\ x . /\ y . y)) (x y (/\ x . /\ y . y)) z
+==========================================
+rewrite in CHURCH-BOOLEANS : and x (and y z) .
+rewrites: 178 in 0ms cpu (0ms real) (~ rewrites/second)
+result Exp: (/\ y . x y (/\ x . /\ y . y)) (y z (/\ x . /\ y . y))
+==========================================
+rewrite in CHURCH-BOOLEANS : and (and $true y) z .
+rewrites: 302 in 0ms cpu (0ms real) (~ rewrites/second)
+result Exp: y z (/\ x . /\ y . y)
+==========================================
+rewrite in CHURCH-BOOLEANS : and $true (and y z) .
+rewrites: 238 in 0ms cpu (0ms real) (~ rewrites/second)
+result Exp: (/\ y . y) (y z (/\ x . /\ y . y))
+==========================================
+rewrite in CHURCH-BOOLEANS : and (and $false y) z .
+rewrites: 324 in 0ms cpu (0ms real) (~ rewrites/second)
+result Val: /\ x . /\ y . y
+==========================================
+rewrite in CHURCH-BOOLEANS : and $false (and y z) .
+rewrites: 238 in 0ms cpu (0ms real) (~ rewrites/second)
+result Exp: (/\ y . /\ x . /\ y . y) (y z (/\ x . /\ y . y))
+==========================================
+rewrite in CHURCH-BOOLEANS : and (and $false $true) $false t f .
+rewrites: 461 in 0ms cpu (0ms real) (~ rewrites/second)
+result Id: f
+==========================================
+rewrite in CHURCH-BOOLEANS : and $false (and $true $false) t f .
+rewrites: 502 in 0ms cpu (0ms real) (~ rewrites/second)
+result Id: f
+==========================================
+rewrite in DISPLAY-CHURCH-NUMERALS : display($5) .
+rewrites: 398 in 0ms cpu (0ms real) (~ rewrites/second)
+result Var: $(5)
+==========================================
+rewrite in DISPLAY-CHURCH-NUMERALS : display(succ $5) .
+rewrites: 795 in 0ms cpu (0ms real) (~ rewrites/second)
+result Var: $(6)
+==========================================
+rewrite in DISPLAY-CHURCH-NUMERALS : display(succ' $5) .
+rewrites: 776 in 0ms cpu (0ms real) (~ rewrites/second)
+result Var: $(6)
+==========================================
+rewrite in DISPLAY-CHURCH-NUMERALS : display(succ (/\ x y . x)) .
+rewrites: 478 in 0ms cpu (0ms real) (~ rewrites/second)
+result Val: /\ k . $(1) k
+==========================================
+rewrite in DISPLAY-CHURCH-NUMERALS : display(succ' (/\ x y . x)) .
+rewrites: 474 in 0ms cpu (0ms real) (~ rewrites/second)
+result Exp: $(1) (/\ k . $(1) k)
+==========================================
+rewrite in DISPLAY-CHURCH-NUMERALS : display(plus $5 $5) .
+rewrites: 1622 in 0ms cpu (0ms real) (~ rewrites/second)
+result Var: $(10)
+==========================================
+rewrite in DISPLAY-CHURCH-NUMERALS : display(plus $0 $5) .
+rewrites: 1127 in 0ms cpu (0ms real) (~ rewrites/second)
+result Var: $(5)
+==========================================
+rewrite in DISPLAY-CHURCH-NUMERALS : display(plus (succ $5) $4) .
+rewrites: 2083 in 0ms cpu (0ms real) (~ rewrites/second)
+result Var: $(10)
+==========================================
+rewrite in DISPLAY-CHURCH-NUMERALS : display(succ (plus $5 $4)) .
+rewrites: 2122 in 0ms cpu (0ms real) (~ rewrites/second)
+result Var: $(10)
+==========================================
+rewrite in DISPLAY-CHURCH-NUMERALS : display(mult $5 $5) .
+rewrites: 2417 in 0ms cpu (1ms real) (~ rewrites/second)
+result Var: $(25)
+==========================================
+rewrite in DISPLAY-CHURCH-NUMERALS : display(power $5 $3) .
+rewrites: 10724 in 6ms cpu (8ms real) (1608760 rewrites/second)
+result Var: $(125)
+==========================================
+rewrite in CHURCH-PAIRS : 1st (pair a b) .
+rewrites: 245 in 0ms cpu (0ms real) (~ rewrites/second)
+result Id: a
+==========================================
+rewrite in CHURCH-PAIRS : 2nd (pair a b) .
+rewrites: 245 in 0ms cpu (0ms real) (~ rewrites/second)
+result Id: b
+==========================================
+rewrite in CHURCH-PAIRS : pair (1st p) (2nd p) .
+rewrites: 93 in 0ms cpu (0ms real) (~ rewrites/second)
+result Exp: (/\ x . /\ y . /\ b . b x y) (p (/\ x . /\ y . x)) (p (/\ x . /\ y . y))
+==========================================
+rewrite in CHURCH-PAIRS : 1st (pair (1st p) (2nd p)) .
+rewrites: 93 in 0ms cpu (0ms real) (~ rewrites/second)
+result Exp: (/\ p . p (/\ x . /\ y . x)) ((/\ x . /\ y . /\ b . b x y) (p (/\ x . /\ y . x)) (p (/\ x . /\ y .
+    y)))
+==========================================
+rewrite in CHURCH-PAIRS : 1st p .
+rewrites: 45 in 0ms cpu (0ms real) (~ rewrites/second)
+result Exp: p (/\ x . /\ y . x)
+==========================================
+rewrite in CHURCH-PAIRS : 2nd (pair (1st p) (2nd p)) .
+rewrites: 93 in 0ms cpu (0ms real) (~ rewrites/second)
+result Exp: (/\ p . p (/\ x . /\ y . y)) ((/\ x . /\ y . /\ b . b x y) (p (/\ x . /\ y . x)) (p (/\ x . /\ y .
+    y)))
+==========================================
+rewrite in CHURCH-PAIRS : 2nd p .
+rewrites: 45 in 0ms cpu (0ms real) (~ rewrites/second)
+result Exp: p (/\ x . /\ y . y)
+==========================================
+rewrite in CHURCH-FIBONACCI : display(fibo $4) .
+rewrites: 72232 in 16ms cpu (14ms real) (4334353 rewrites/second)
+result Var: $(3)
+==========================================
+rewrite in CHURCH-PREDECESSOR : display(pred $0) .
+rewrites: 1884 in 0ms cpu (0ms real) (~ rewrites/second)
+result Var: $(0)
+==========================================
+rewrite in CHURCH-PREDECESSOR : display(pred $1) .
+rewrites: 5439 in 0ms cpu (1ms real) (~ rewrites/second)
+result Var: $(0)
+==========================================
+rewrite in CHURCH-PREDECESSOR : display(pred $5) .
+rewrites: 69747 in 13ms cpu (14ms real) (5231155 rewrites/second)
+result Var: $(4)
+==========================================
+rewrite in CHURCH-SUBTRACTION : display(sub $5 $3) .
+rewrites: 164412 in 33ms cpu (33ms real) (4932705 rewrites/second)
+result Var: $(2)
+==========================================
+rewrite in CHURCH-SUBTRACTION : display(sub $3 $5) .
+rewrites: 67572 in 13ms cpu (14ms real) (5068406 rewrites/second)
+result Var: $(0)
+==========================================
+rewrite in LAMBDA-WITH-BUILTINS : (/\ x . /\ y . + x (y 7)) 5 (/\ y . * y 3) .
+rewrites: 117 in 0ms cpu (0ms real) (~ rewrites/second)
+result Int: 26
+==========================================
+rewrite in LAMBDA-WITH-BUILTINS : (/\ x y . if x (* (y x) x) (/\ y . y x)) 3 (/\ x . * 2 x) .
+rewrites: 268 in 0ms cpu (0ms real) (~ rewrites/second)
+result Int: 18
+==========================================
+rewrite in LAMBDA-WITH-BUILTINS : (/\ x y . if x (* (y x) x) (/\ y . y x)) 0 (/\ x . * 2 x) .
+rewrites: 243 in 0ms cpu (0ms real) (~ rewrites/second)
+result Val: /\ y . y 0
+==========================================
+rewrite in LAMBDA-WITH-BUILTINS : (/\ x y . if x (* (y x) x) (/\ y . y x)) x (/\ x . * 2 x) .
+rewrites: 164 in 0ms cpu (0ms real) (~ rewrites/second)
+result Exp: if x (* (* 2 x) x) (/\ y . y x)
+Bye.

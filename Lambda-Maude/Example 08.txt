@@ -1,0 +1,501 @@
+                     \||||||||||||||||||/
+                   --- Welcome to Maude ---
+                     /||||||||||||||||||\
+            Maude alpha96b built: Nov 15 2012 18:03:52
+            Copyright 1997-2011 SRI International
+                   Wed Mar 20 11:21:04 2013
+==========================================
+rewrite in TEST-SUBSTITUTION : (/\ x . /\ y . x y z)[x / z] .
+rewrites: 82 in 0ms cpu (0ms real) (~ rewrites/second)
+result Exp: /\ '$1 . /\ y . '$1 y x
+==========================================
+rewrite in TEST-SUBSTITUTION : (/\ u . /\ x . /\ y . x y z)[x / z] .
+rewrites: 96 in 0ms cpu (0ms real) (~ rewrites/second)
+result Exp: /\ u . /\ '$2 . /\ y . '$2 y x
+==========================================
+rewrite in TEST-SUBSTITUTION : (/\ x . x z) (/\ x . /\ y . x y z)[x / z] .
+rewrites: 123 in 0ms cpu (0ms real) (~ rewrites/second)
+result Exp: (/\ '$3 . '$3 x) (/\ '$4 . /\ y . '$4 y x)
+==========================================
+rewrite in COMBINATORY-LOGIC : S K K x .
+rewrites: 2 in 0ms cpu (0ms real) (~ rewrites/second)
+result Id: x
+==========================================
+rewrite in COMBINATORY-LOGIC : S K K (S K K) .
+rewrites: 2 in 0ms cpu (0ms real) (~ rewrites/second)
+result Exp: S K K
+==========================================
+rewrite in DE-BRUIJN : (/\ {0}) x .
+rewrites: 6 in 0ms cpu (0ms real) (~ rewrites/second)
+result Id: x
+==========================================
+rewrite in DE-BRUIJN : (/\ /\ {0}) x .
+rewrites: 13 in 0ms cpu (0ms real) (~ rewrites/second)
+result Exp: /\ {0}
+==========================================
+rewrite in DE-BRUIJN : (/\ /\ {1}) x .
+rewrites: 12 in 0ms cpu (0ms real) (~ rewrites/second)
+result Exp: /\ x
+==========================================
+rewrite in DE-BRUIJN : (/\ /\ x {1} y) x .
+rewrites: 20 in 0ms cpu (0ms real) (~ rewrites/second)
+result Exp: /\ x x y
+==========================================
+rewrite in DE-BRUIJN-OPTIMIZED : (/\ {0}) x .
+rewrites: 2 in 0ms cpu (0ms real) (~ rewrites/second)
+result Id: x
+==========================================
+rewrite in DE-BRUIJN-OPTIMIZED : (/\ /\ {0}) x .
+rewrites: 6 in 0ms cpu (0ms real) (~ rewrites/second)
+result Exp: /\ {0}
+==========================================
+rewrite in DE-BRUIJN-OPTIMIZED : (/\ /\ {1}) x .
+rewrites: 5 in 0ms cpu (0ms real) (~ rewrites/second)
+result Exp: /\ x
+==========================================
+rewrite in DE-BRUIJN-OPTIMIZED : (/\ /\ x {1} y) x .
+rewrites: 9 in 0ms cpu (0ms real) (~ rewrites/second)
+result Exp: /\ x x y
+==========================================
+rewrite in LAMBDA : (/\ x . x) y .
+rewrites: 3 in 0ms cpu (0ms real) (~ rewrites/second)
+result Id: y
+==========================================
+rewrite in LAMBDA : (/\ x . x) (/\ x . x) .
+rewrites: 3 in 0ms cpu (0ms real) (~ rewrites/second)
+result Exp: S K K
+==========================================
+rewrite in LAMBDA : (/\ f . (/\ x . f x) y) g .
+rewrites: 28 in 0ms cpu (0ms real) (~ rewrites/second)
+result Exp: g (S (S (K S) (K K)) (K K) g (K y g))
+==========================================
+rewrite in LAMBDA : (/\ z . z z) (/\ x . /\ y . x y) .
+rewrites: 24 in 0ms cpu (0ms real) (~ rewrites/second)
+result Exp: S (S (K K) (S K K) (S K K (S (S (K S) (S (K K) (S K K))) (S (S (K S) (K
+    K)) (K K))))) (S (S (K S) (K K)) (K K) (S K K (S (S (K S) (S (K K) (S K K))) (S (S
+    (K S) (K K)) (K K)))))
+==========================================
+rewrite in LAMBDA : (/\ z . /\ a . /\ b . z a b) (a b) .
+rewrites: 81 in 0ms cpu (0ms real) (~ rewrites/second)
+result Exp: S (S (S (K S) (S (K K) (K S))) (S (S (K S) (S (S (K S) (S (K K) (K S))) (S
+    (S (K S) (S (K K) (K K))) (S (K K) (S K K))))) (S (S (K S) (S (K K) (K K))) (S (S
+    (K S) (K K)) (K K)))) (a b)) (S (S (K S) (S (S (K S) (S (K K) (K S))) (S (K K) (K
+    K)))) (S (K K) (K K)) (a b))
+==========================================
+rewrite in LAMBDA : /\ x . x x .
+rewrites: 3 in 0ms cpu (0ms real) (~ rewrites/second)
+result Exp: S (S K K) (S K K)
+==========================================
+rewrite in LAMBDA : /\ x . f (x x) .
+rewrites: 6 in 0ms cpu (0ms real) (~ rewrites/second)
+result Exp: S (K f) (S (S K K) (S K K))
+==========================================
+rewrite in CURRYING : (/\ x y z . x y z) a b .
+rewrites: 92 in 0ms cpu (0ms real) (~ rewrites/second)
+result Exp: S (S (S (K S) (S (S (K S) (S (K K) (K S))) (S (S (K S) (S (K K) (K K))) (S
+    (K K) (S K K))))) (S (S (K S) (S (K K) (K K))) (S (S (K S) (K K)) (K K))) a b) (S
+    (S (K S) (S (S (K S) (S (K K) (K S))) (S (K K) (K K)))) (S (K K) (K K)) a b)
+==========================================
+rewrite in CURRYING : (/\ x y z . x y z) (/\ x y z . x y z) a b .
+rewrites: 132 in 0ms cpu (0ms real) (~ rewrites/second)
+result Exp: S (S (S (K S) (S (S (K S) (S (K K) (K S))) (S (S (K S) (S (K K) (K K))) (S
+    (K K) (S K K))))) (S (S (K S) (S (K K) (K K))) (S (S (K S) (K K)) (K K))) (S (S (K
+    S) (S (K K) (K K))) (S (S (K S) (K K)) (K K)) (S (S (K S) (S (S (K S) (S (K K) (K
+    S))) (S (S (K S) (S (S (K S) (S (K K) (K S))) (S (S (K S) (S (K K) (K K))) (S (K
+    K) (S K K))))) (S (S (K S) (S (K K) (K K))) (S (S (K S) (K K)) (K K)))))) (S (S (K
+    S) (S (S (K S) (S (K K) (K S))) (S (K K) (K K)))) (S (K K) (K K)))) a b) (S (S (K
+    S) (S (S (K S) (S (K K) (K S))) (S (K K) (K K)))) (S (K K) (K K)) (S (S (K S) (S (
+    S (K S) (S (K K) (K S))) (S (S (K S) (S (S (K S) (S (K K) (K S))) (S (S (K S) (S (
+    K K) (K K))) (S (K K) (S K K))))) (S (S (K S) (S (K K) (K K))) (S (S (K S) (K K))
+    (K K)))))) (S (S (K S) (S (S (K S) (S (K K) (K S))) (S (K K) (K K)))) (S (K K) (K
+    K)))) a b)) (S (S (K S) (S (S (K S) (S (K K) (K S))) (S (K K) (K K)))) (S (K K) (K
+    K)) (S (S (K S) (S (K K) (K K))) (S (S (K S) (K K)) (K K)) (S (S (K S) (S (S (K S)
+    (S (K K) (K S))) (S (S (K S) (S (S (K S) (S (K K) (K S))) (S (S (K S) (S (K K) (K
+    K))) (S (K K) (S K K))))) (S (S (K S) (S (K K) (K K))) (S (S (K S) (K K)) (K
+    K)))))) (S (S (K S) (S (S (K S) (S (K K) (K S))) (S (K K) (K K)))) (S (K K) (K
+    K)))) a b) (S (S (K S) (S (S (K S) (S (K K) (K S))) (S (K K) (K K)))) (S (K K) (K
+    K)) (S (S (K S) (S (S (K S) (S (K K) (K S))) (S (S (K S) (S (S (K S) (S (K K) (K
+    S))) (S (S (K S) (S (K K) (K K))) (S (K K) (S K K))))) (S (S (K S) (S (K K) (K
+    K))) (S (S (K S) (K K)) (K K)))))) (S (S (K S) (S (S (K S) (S (K K) (K S))) (S (K
+    K) (K K)))) (S (K K) (K K)))) a b))
+==========================================
+rewrite in CURRYING : (/\ x y z . (/\ x y z . x y z) y z) (/\ x y z . x y z) a b .
+rewrites: 2627 in 3ms cpu (0ms real) (788178 rewrites/second)
+result Exp: S (S (S (K S) (S (S (K S) (S (K K) (K S))) (S (S (K S) (S (S (K S) (S (K
+    K) (K S))) (S (S (K S) (S (K K) (K K))) (S (K K) (K S))))) (S (S (K S) (S (S (K S)
+    (S (K K) (K S))) (S (S (K S) (S (S (K S) (S (K K) (K S))) (S (S (K S) (S (K K) (K
+    K))) (S (K K) (K S))))) (S (S (K S) (S (S (K S) (S (K K) (K S))) (S (S (K S) (S (K
+    K) (K K))) (S (K K) (K K))))) (S (S (K S) (S (K K) (K K))) (S (K K) (K S))))))) (S
+    (S (K S) (S (S (K S) (S (K K) (K S))) (S (S (K S) (S (S (K S) (S (K K) (K S))) (S
+    (S (K S) (S (K K) (K K))) (S (K K) (K S))))) (S (S (K S) (S (S (K S) (S (K K) (K
+    S))) (S (S (K S) (S (S (K S) (S (K K) (K S))) (S (S (K S) (S (K K) (K K))) (S (K
+    K) (K S))))) (S (S (K S) (S (S (K S) (S (K K) (K S))) (S (S (K S) (S (K K) (K K)))
+    (S (K K) (K K))))) (S (S (K S) (S (K K) (K K))) (S (K K) (K S))))))) (S (S (K S) (
+    S (S (K S) (S (K K) (K S))) (S (S (K S) (S (S (K S) (S (K K) (K S))) (S (S (K S) (
+    S (K K) (K K))) (S (K K) (K S))))) (S (S (K S) (S (S (K S) (S (K K) (K S))) (S (S
+    (K S) (S (K K) (K K))) (S (K K) (K K))))) (S (S (K S) (S (K K) (K K))) (S (K K) (K
+    K))))))) (S (S (K S) (S (S (K S) (S (K K) (K S))) (S (S (K S) (S (K K) (K K))) (S
+    (K K) (K K))))) (S (S (K S) (S (K K) (K K))) (S (K K) (K S))))))))) (S (S (K S) (S
+    (S (K S) (S (K K) (K S))) (S (S (K S) (S (S (K S) (S (K K) (K S))) (S (S (K S) (S
+    (K K) (K K))) (S (K K) (K S))))) (S (S (K S) (S (S (K S) (S (K K) (K S))) (S (S (K
+    S) (S (S (K S) (S (K K) (K S))) (S (S (K S) (S (K K) (K K))) (S (K K) (K S))))) (S
+    (S (K S) (S (S (K S) (S (K K) (K S))) (S (S (K S) (S (K K) (K K))) (S (K K) (K
+    K))))) (S (S (K S) (S (K K) (K K))) (S (K K) (K S))))))) (S (S (K S) (S (S (K S) (
+    S (K K) (K S))) (S (S (K S) (S (S (K S) (S (K K) (K S))) (S (S (K S) (S (K K) (K
+    K))) (S (K K) (K S))))) (S (S (K S) (S (S (K S) (S (K K) (K S))) (S (S (K S) (S (K
+    K) (K K))) (S (K K) (K K))))) (S (S (K S) (S (K K) (K K))) (S (K K) (K K))))))) (S
+    (S (K S) (S (S (K S) (S (K K) (K S))) (S (S (K S) (S (K K) (K K))) (S (K K) (K
+    K))))) (S (S (K S) (S (K K) (K K))) (S (K K) (K K))))))))) (S (S (K S) (S (S (K S)
+    (S (K K) (K S))) (S (S (K S) (S (S (K S) (S (K K) (K S))) (S (S (K S) (S (K K) (K
+    K))) (S (K K) (K S))))) (S (S (K S) (S (S (K S) (S (K K) (K S))) (S (S (K S) (S (K
+    K) (K K))) (S (K K) (K K))))) (S (S (K S) (S (K K) (K K))) (S (K K) (K K))))))) (S
+    (S (K S) (S (S (K S) (S (K K) (K S))) (S (S (K S) (S (S (K S) (S (K K) (K S))) (S
+    (S (K S) (S (K K) (K K))) (S (K K) (K S))))) (S (S (K S) (S (K K) (K K))) (S (K K)
+    (K K)))))) (S (S (K S) (S (K K) (K K))) (S (K K) (K K))))))))))) (S (S (K S) (S (S
+    (K S) (S (K K) (K S))) (S (S (K S) (S (S (K S) (S (K K) (K S))) (S (S (K S) (S (K
+    K) (K K))) (S (K K) (K S))))) (S (S (K S) (S (S (K S) (S (K K) (K S))) (S (S (K S)
+    (S (S (K S) (S (K K) (K S))) (S (S (K S) (S (K K) (K K))) (S (K K) (K S))))) (S (S
+    (K S) (S (S (K S) (S (K K) (K S))) (S (S (K S) (S (K K) (K K))) (S (K K) (K K)))))
+    (S (S (K S) (S (K K) (K K))) (S (K K) (K S))))))) (S (S (K S) (S (S (K S) (S (K K)
+    (K S))) (S (S (K S) (S (S (K S) (S (K K) (K S))) (S (S (K S) (S (K K) (K K))) (S (
+    K K) (K S))))) (S (S (K S) (S (S (K S) (S (K K) (K S))) (S (S (K S) (S (K K) (K
+    K))) (S (K K) (K K))))) (S (S (K S) (S (K K) (K K))) (S (K K) (K K))))))) (S (S (K
+    S) (S (S (K S) (S (K K) (K S))) (S (S (K S) (S (K K) (K K))) (S (K K) (K K))))) (S
+    (S (K S) (S (K K) (K K))) (S (K K) (K K))))))))) (S (S (K S) (S (S (K S) (S (K K)
+    (K S))) (S (S (K S) (S (S (K S) (S (K K) (K S))) (S (S (K S) (S (K K) (K K))) (S (
+    K K) (K S))))) (S (S (K S) (S (S (K S) (S (K K) (K S))) (S (S (K S) (S (S (K S) (S
+    (K K) (K S))) (S (S (K S) (S (K K) (K K))) (S (K K) (K S))))) (S (S (K S) (S (S (K
+    S) (S (K K) (K S))) (S (S (K S) (S (K K) (K K))) (S (K K) (K K))))) (S (S (K S) (S
+    (K K) (K K))) (S (K K) (K S))))))) (S (S (K S) (S (S (K S) (S (K K) (K S))) (S (S
+    (K S) (S (K K) (K K))) (S (K K) (K K))))) (S (S (K S) (S (K K) (K K))) (S (K K) (K
+    K)))))))) (S (S (K S) (S (S (K S) (S (K K) (K S))) (S (S (K S) (S (K K) (K K))) (S
+    (K K) (K K))))) (S (S (K S) (S (K K) (K K))) (S (K K) (K K)))))) (S (S (K S) (S (S
+    (K S) (S (K K) (K S))) (S (S (K S) (S (S (K S) (S (K K) (K S))) (S (S (K S) (S (K
+    K) (K K))) (S (K K) (S K K))))) (S (S (K S) (S (K K) (K K))) (S (S (K S) (K K)) (K
+    K)))))) (S (S (K S) (S (S (K S) (S (K K) (K S))) (S (K K) (K K)))) (S (K K) (K
+    K)))) a b (S (S (K S) (S (K K) (K K))) (S (S (K S) (K K)) (K K)) (S (S (K S) (S (S
+    (K S) (S (K K) (K S))) (S (S (K S) (S (S (K S) (S (K K) (K S))) (S (S (K S) (S (K
+    K) (K K))) (S (K K) (S K K))))) (S (S (K S) (S (K K) (K K))) (S (S (K S) (K K)) (K
+    K)))))) (S (S (K S) (S (S (K S) (S (K K) (K S))) (S (K K) (K K)))) (S (K K) (K
+    K)))) a b) (S (S (K S) (S (S (K S) (S (K K) (K S))) (S (K K) (K K)))) (S (K K) (K
+    K)) (S (S (K S) (S (S (K S) (S (K K) (K S))) (S (S (K S) (S (S (K S) (S (K K) (K
+    S))) (S (S (K S) (S (K K) (K K))) (S (K K) (S K K))))) (S (S (K S) (S (K K) (K
+    K))) (S (S (K S) (K K)) (K K)))))) (S (S (K S) (S (S (K S) (S (K K) (K S))) (S (K
+    K) (K K)))) (S (K K) (K K)))) a b)) (S (S (K S) (S (S (K S) (S (K K) (K S))) (S (S
+    (K S) (S (S (K S) (S (K K) (K S))) (S (S (K S) (S (K K) (K K))) (S (K K) (K S)))))
+    (S (S (K S) (S (S (K S) (S (K K) (K S))) (S (S (K S) (S (S (K S) (S (K K) (K S)))
+    (S (S (K S) (S (K K) (K K))) (S (K K) (K S))))) (S (S (K S) (S (S (K S) (S (K K) (
+    K S))) (S (S (K S) (S (K K) (K K))) (S (K K) (K K))))) (S (S (K S) (S (K K) (K
+    K))) (S (K K) (K S))))))) (S (S (K S) (S (S (K S) (S (K K) (K S))) (S (S (K S) (S
+    (S (K S) (S (K K) (K S))) (S (S (K S) (S (K K) (K K))) (S (K K) (K S))))) (S (S (K
+    S) (S (S (K S) (S (K K) (K S))) (S (S (K S) (S (S (K S) (S (K K) (K S))) (S (S (K
+    S) (S (K K) (K K))) (S (K K) (K S))))) (S (S (K S) (S (S (K S) (S (K K) (K S))) (S
+    (S (K S) (S (K K) (K K))) (S (K K) (K K))))) (S (S (K S) (S (K K) (K K))) (S (K K)
+    (K S))))))) (S (S (K S) (S (S (K S) (S (K K) (K S))) (S (S (K S) (S (S (K S) (S (K
+    K) (K S))) (S (S (K S) (S (K K) (K K))) (S (K K) (K S))))) (S (S (K S) (S (S (K S)
+    (S (K K) (K S))) (S (S (K S) (S (K K) (K K))) (S (K K) (K K))))) (S (S (K S) (S (K
+    K) (K K))) (S (K K) (K K))))))) (S (S (K S) (S (S (K S) (S (K K) (K S))) (S (S (K
+    S) (S (K K) (K K))) (S (K K) (K K))))) (S (S (K S) (S (K K) (K K))) (S (K K) (K
+    S))))))))) (S (S (K S) (S (S (K S) (S (K K) (K S))) (S (S (K S) (S (S (K S) (S (K
+    K) (K S))) (S (S (K S) (S (K K) (K K))) (S (K K) (K S))))) (S (S (K S) (S (S (K S)
+    (S (K K) (K S))) (S (S (K S) (S (K K) (K K))) (S (K K) (K K))))) (S (S (K S) (S (K
+    K) (K K))) (S (K K) (K K))))))) (S (S (K S) (S (S (K S) (S (K K) (K S))) (S (S (K
+    S) (S (K K) (K K))) (S (K K) (K K))))) (S (S (K S) (S (K K) (K K))) (S (K K) (K
+    K)))))))))) (S (S (K S) (S (S (K S) (S (K K) (K S))) (S (S (K S) (S (S (K S) (S (K
+    K) (K S))) (S (S (K S) (S (K K) (K K))) (S (K K) (K S))))) (S (S (K S) (S (S (K S)
+    (S (K K) (K S))) (S (S (K S) (S (K K) (K K))) (S (K K) (K K))))) (S (S (K S) (S (K
+    K) (K K))) (S (K K) (K K))))))) (S (S (K S) (S (S (K S) (S (K K) (K S))) (S (S (K
+    S) (S (K K) (K K))) (S (K K) (K K))))) (S (S (K S) (S (K K) (K K))) (S (K K) (K
+    K))))) (S (S (K S) (S (S (K S) (S (K K) (K S))) (S (S (K S) (S (S (K S) (S (K K) (
+    K S))) (S (S (K S) (S (K K) (K K))) (S (K K) (S K K))))) (S (S (K S) (S (K K) (K
+    K))) (S (S (K S) (K K)) (K K)))))) (S (S (K S) (S (S (K S) (S (K K) (K S))) (S (K
+    K) (K K)))) (S (K K) (K K)))) a b (S (S (K S) (S (K K) (K K))) (S (S (K S) (K K))
+    (K K)) (S (S (K S) (S (S (K S) (S (K K) (K S))) (S (S (K S) (S (S (K S) (S (K K) (
+    K S))) (S (S (K S) (S (K K) (K K))) (S (K K) (S K K))))) (S (S (K S) (S (K K) (K
+    K))) (S (S (K S) (K K)) (K K)))))) (S (S (K S) (S (S (K S) (S (K K) (K S))) (S (K
+    K) (K K)))) (S (K K) (K K)))) a b) (S (S (K S) (S (S (K S) (S (K K) (K S))) (S (K
+    K) (K K)))) (S (K K) (K K)) (S (S (K S) (S (S (K S) (S (K K) (K S))) (S (S (K S) (
+    S (S (K S) (S (K K) (K S))) (S (S (K S) (S (K K) (K K))) (S (K K) (S K K))))) (S (
+    S (K S) (S (K K) (K K))) (S (S (K S) (K K)) (K K)))))) (S (S (K S) (S (S (K S) (S
+    (K K) (K S))) (S (K K) (K K)))) (S (K K) (K K)))) a b))
+==========================================
+rewrite in CHURCH-BOOLEANS : and $true $false .
+rewrites: 127 in 0ms cpu (0ms real) (~ rewrites/second)
+result Exp: S (S (K S) (K K)) (K K)
+==========================================
+rewrite in CHURCH-BOOLEANS : and (and x y) z .
+rewrites: 114 in 0ms cpu (0ms real) (~ rewrites/second)
+result Exp: x (S (S (K S) (K K)) (K K) x y) (S (S (K S) (S (S (K S) (S (K K) (K S))) (
+    S (S (K S) (S (S (K S) (S (K K) (K S))) (S (S (K S) (S (K K) (K K))) (S (K K) (K
+    S))))) (S (S (K S) (S (K K) (K K))) (S (K K) (K K)))))) (S (S (K S) (S (K K) (K
+    K))) (S (K K) (K K))) x y) (S (S (K S) (K K)) (K K) (S (S (K S) (S (S (K S) (S (K
+    K) (S K K))) (S (S (K S) (K K)) (K K)))) (S (S (K S) (S (S (K S) (S (K K) (K S)))
+    (S (S (K S) (S (S (K S) (S (K K) (K S))) (S (S (K S) (S (K K) (K K))) (S (K K) (K
+    S))))) (S (S (K S) (S (K K) (K K))) (S (K K) (K K)))))) (S (S (K S) (S (K K) (K
+    K))) (S (K K) (K K)))) x y) z) (S (S (K S) (S (S (K S) (S (K K) (K S))) (S (S (K
+    S) (S (S (K S) (S (K K) (K S))) (S (S (K S) (S (K K) (K K))) (S (K K) (K S))))) (S
+    (S (K S) (S (K K) (K K))) (S (K K) (K K)))))) (S (S (K S) (S (K K) (K K))) (S (K
+    K) (K K))) (S (S (K S) (S (S (K S) (S (K K) (S K K))) (S (S (K S) (K K)) (K K))))
+    (S (S (K S) (S (S (K S) (S (K K) (K S))) (S (S (K S) (S (S (K S) (S (K K) (K S)))
+    (S (S (K S) (S (K K) (K K))) (S (K K) (K S))))) (S (S (K S) (S (K K) (K K))) (S (K
+    K) (K K)))))) (S (S (K S) (S (K K) (K K))) (S (K K) (K K)))) x y) z)
+==========================================
+rewrite in CHURCH-BOOLEANS : and x (and y z) .
+rewrites: 101 in 0ms cpu (0ms real) (~ rewrites/second)
+result Exp: x (S (S (K S) (K K)) (K K) x (S (S (K S) (S (S (K S) (S (K K) (S K K))) (S
+    (S (K S) (K K)) (K K)))) (S (S (K S) (S (S (K S) (S (K K) (K S))) (S (S (K S) (S (
+    S (K S) (S (K K) (K S))) (S (S (K S) (S (K K) (K K))) (S (K K) (K S))))) (S (S (K
+    S) (S (K K) (K K))) (S (K K) (K K)))))) (S (S (K S) (S (K K) (K K))) (S (K K) (K
+    K)))) y z)) (S (S (K S) (S (S (K S) (S (K K) (K S))) (S (S (K S) (S (S (K S) (S (K
+    K) (K S))) (S (S (K S) (S (K K) (K K))) (S (K K) (K S))))) (S (S (K S) (S (K K) (K
+    K))) (S (K K) (K K)))))) (S (S (K S) (S (K K) (K K))) (S (K K) (K K))) x (S (S (K
+    S) (S (S (K S) (S (K K) (S K K))) (S (S (K S) (K K)) (K K)))) (S (S (K S) (S (S (K
+    S) (S (K K) (K S))) (S (S (K S) (S (S (K S) (S (K K) (K S))) (S (S (K S) (S (K K)
+    (K K))) (S (K K) (K S))))) (S (S (K S) (S (K K) (K K))) (S (K K) (K K)))))) (S (S
+    (K S) (S (K K) (K K))) (S (K K) (K K)))) y z))
+==========================================
+rewrite in CHURCH-BOOLEANS : and (and $true y) z .
+rewrites: 132 in 0ms cpu (0ms real) (~ rewrites/second)
+result Exp: y (S (S (K S) (K K)) (K K) (S (S (K S) (S (S (K S) (S (K K) (S K K))) (S (
+    S (K S) (K K)) (K K)))) (S (S (K S) (S (S (K S) (S (K K) (K S))) (S (S (K S) (S (S
+    (K S) (S (K K) (K S))) (S (S (K S) (S (K K) (K K))) (S (K K) (K S))))) (S (S (K S)
+    (S (K K) (K K))) (S (K K) (K K)))))) (S (S (K S) (S (K K) (K K))) (S (K K) (K
+    K)))) (S (K K) (S K K)) y) z) (S (S (K S) (S (S (K S) (S (K K) (K S))) (S (S (K S)
+    (S (S (K S) (S (K K) (K S))) (S (S (K S) (S (K K) (K K))) (S (K K) (K S))))) (S (S
+    (K S) (S (K K) (K K))) (S (K K) (K K)))))) (S (S (K S) (S (K K) (K K))) (S (K K) (
+    K K))) (S (S (K S) (S (S (K S) (S (K K) (S K K))) (S (S (K S) (K K)) (K K)))) (S (
+    S (K S) (S (S (K S) (S (K K) (K S))) (S (S (K S) (S (S (K S) (S (K K) (K S))) (S (
+    S (K S) (S (K K) (K K))) (S (K K) (K S))))) (S (S (K S) (S (K K) (K K))) (S (K K)
+    (K K)))))) (S (S (K S) (S (K K) (K K))) (S (K K) (K K)))) (S (K K) (S K K)) y) z)
+==========================================
+rewrite in CHURCH-BOOLEANS : and $true (and y z) .
+rewrites: 132 in 0ms cpu (0ms real) (~ rewrites/second)
+result Exp: y (S (S (K S) (K K)) (K K) y z) (S (S (K S) (S (S (K S) (S (K K) (K S))) (
+    S (S (K S) (S (S (K S) (S (K K) (K S))) (S (S (K S) (S (K K) (K K))) (S (K K) (K
+    S))))) (S (S (K S) (S (K K) (K K))) (S (K K) (K K)))))) (S (S (K S) (S (K K) (K
+    K))) (S (K K) (K K))) y z)
+==========================================
+rewrite in CHURCH-BOOLEANS : and (and $false y) z .
+rewrites: 194 in 0ms cpu (0ms real) (~ rewrites/second)
+result Exp: S (S (S (K S) (S (S (K S) (S (K K) (K S))) (S (S (K S) (S (K K) (K K))) (S
+    (K K) (K S))))) (S (S (K S) (S (K K) (K K))) (S (K K) (K K))) (S (S (K S) (S (S (K
+    S) (S (K K) (S K K))) (S (S (K S) (K K)) (K K)))) (S (S (K S) (S (S (K S) (S (K K)
+    (K S))) (S (S (K S) (S (S (K S) (S (K K) (K S))) (S (S (K S) (S (K K) (K K))) (S (
+    K K) (K S))))) (S (S (K S) (S (K K) (K K))) (S (K K) (K K)))))) (S (S (K S) (S (K
+    K) (K K))) (S (K K) (K K)))) (S (S (K S) (K K)) (K K)) y) z) (S (S (K S) (S (K K)
+    (K K))) (S (K K) (K K)) (S (S (K S) (S (S (K S) (S (K K) (S K K))) (S (S (K S) (K
+    K)) (K K)))) (S (S (K S) (S (S (K S) (S (K K) (K S))) (S (S (K S) (S (S (K S) (S (
+    K K) (K S))) (S (S (K S) (S (K K) (K K))) (S (K K) (K S))))) (S (S (K S) (S (K K)
+    (K K))) (S (K K) (K K)))))) (S (S (K S) (S (K K) (K K))) (S (K K) (K K)))) (S (S (
+    K S) (K K)) (K K)) y) z)
+==========================================
+rewrite in CHURCH-BOOLEANS : and $false (and y z) .
+rewrites: 127 in 0ms cpu (0ms real) (~ rewrites/second)
+result Exp: S (S (S (K S) (S (S (K S) (S (K K) (K S))) (S (S (K S) (S (K K) (K K))) (S
+    (K K) (K S))))) (S (S (K S) (S (K K) (K K))) (S (K K) (K K))) (S (S (K S) (K K)) (
+    K K)) (S (S (K S) (S (S (K S) (S (K K) (S K K))) (S (S (K S) (K K)) (K K)))) (S (S
+    (K S) (S (S (K S) (S (K K) (K S))) (S (S (K S) (S (S (K S) (S (K K) (K S))) (S (S
+    (K S) (S (K K) (K K))) (S (K K) (K S))))) (S (S (K S) (S (K K) (K K))) (S (K K) (K
+    K)))))) (S (S (K S) (S (K K) (K K))) (S (K K) (K K)))) y z)) (S (S (K S) (S (K K)
+    (K K))) (S (K K) (K K)) (S (S (K S) (K K)) (K K)) (S (S (K S) (S (S (K S) (S (K K)
+    (S K K))) (S (S (K S) (K K)) (K K)))) (S (S (K S) (S (S (K S) (S (K K) (K S))) (S
+    (S (K S) (S (S (K S) (S (K K) (K S))) (S (S (K S) (S (K K) (K K))) (S (K K) (K
+    S))))) (S (S (K S) (S (K K) (K K))) (S (K K) (K K)))))) (S (S (K S) (S (K K) (K
+    K))) (S (K K) (K K)))) y z))
+==========================================
+rewrite in CHURCH-BOOLEANS : and (and $false $true) $false t f .
+rewrites: 243 in 0ms cpu (0ms real) (~ rewrites/second)
+result Id: f
+==========================================
+rewrite in CHURCH-BOOLEANS : and $false (and $true $false) t f .
+rewrites: 176 in 0ms cpu (0ms real) (~ rewrites/second)
+result Id: f
+==========================================
+rewrite in DISPLAY-CHURCH-NUMERALS : display($5) .
+rewrites: 649 in 0ms cpu (1ms real) (~ rewrites/second)
+result Var: $(5)
+==========================================
+rewrite in DISPLAY-CHURCH-NUMERALS : display(succ $5) .
+rewrites: 2186 in 3ms cpu (5ms real) (655865 rewrites/second)
+result Var: $(6)
+==========================================
+rewrite in DISPLAY-CHURCH-NUMERALS : display(succ' $5) .
+rewrites: 2264 in 3ms cpu (5ms real) (679267 rewrites/second)
+result Var: $(6)
+==========================================
+rewrite in DISPLAY-CHURCH-NUMERALS : display(succ (/\ x y . x)) .
+rewrites: 181 in 0ms cpu (0ms real) (~ rewrites/second)
+result Exp: S (K $(1)) (S K K)
+==========================================
+rewrite in DISPLAY-CHURCH-NUMERALS : display(succ' (/\ x y . x)) .
+rewrites: 400 in 0ms cpu (0ms real) (~ rewrites/second)
+result Exp: $(1) (S (K $(1)) (S K K))
+==========================================
+rewrite in DISPLAY-CHURCH-NUMERALS : display(plus $5 $5) .
+rewrites: 12992 in 46ms cpu (46ms real) (278415 rewrites/second)
+result Var: $(10)
+==========================================
+rewrite in DISPLAY-CHURCH-NUMERALS : display(plus $0 $5) .
+rewrites: 3760 in 9ms cpu (9ms real) (376037 rewrites/second)
+result Var: $(5)
+==========================================
+rewrite in DISPLAY-CHURCH-NUMERALS : display(plus (succ $5) $4) .
+rewrites: 14723 in 53ms cpu (56ms real) (276073 rewrites/second)
+result Var: $(10)
+==========================================
+rewrite in DISPLAY-CHURCH-NUMERALS : display(succ (plus $5 $4)) .
+rewrites: 14591 in 56ms cpu (58ms real) (257504 rewrites/second)
+result Var: $(10)
+==========================================
+rewrite in DISPLAY-CHURCH-NUMERALS : display(mult $5 $5) .
+rewrites: 36612 in 156ms cpu (157ms real) (233708 rewrites/second)
+result Var: $(25)
+==========================================
+rewrite in CHURCH-PAIRS : 1st (pair a b) .
+rewrites: 178 in 0ms cpu (0ms real) (~ rewrites/second)
+result Id: a
+==========================================
+rewrite in CHURCH-PAIRS : 2nd (pair a b) .
+rewrites: 187 in 0ms cpu (0ms real) (~ rewrites/second)
+result Id: b
+==========================================
+rewrite in CHURCH-PAIRS : pair (1st p) (2nd p) .
+rewrites: 140 in 0ms cpu (0ms real) (~ rewrites/second)
+result Exp: S (S (S (K S) (S (S (K S) (S (K K) (K S))) (S (S (K S) (S (S (K S) (S (K
+    K) (K S))) (S (K K) (K K)))) (S (K K) (K K))))) (S (S (K S) (S (K K) (K K))) (S (K
+    K) (S K K))) (S (S K K) (S (S (K S) (S (K K) (K K))) (S (S (K S) (K K)) (K K))) p)
+    (S (S K K) (S (S (K S) (S (S (K S) (S (K K) (K S))) (S (K K) (K K)))) (S (K K) (K
+    K))) p)) (S (S (K S) (S (K K) (K K))) (S (S (K S) (K K)) (K K)) (S (S K K) (S (S (
+    K S) (S (K K) (K K))) (S (S (K S) (K K)) (K K))) p) (S (S K K) (S (S (K S) (S (S (
+    K S) (S (K K) (K S))) (S (K K) (K K)))) (S (K K) (K K))) p))
+==========================================
+rewrite in CHURCH-PAIRS : 1st (pair (1st p) (2nd p)) .
+rewrites: 207 in 0ms cpu (0ms real) (~ rewrites/second)
+result Exp: p (S (S (K S) (S (K K) (K K))) (S (S (K S) (K K)) (K K)) p)
+==========================================
+rewrite in CHURCH-PAIRS : 1st p .
+rewrites: 24 in 0ms cpu (0ms real) (~ rewrites/second)
+result Exp: p (S (S (K S) (S (K K) (K K))) (S (S (K S) (K K)) (K K)) p)
+==========================================
+rewrite in CHURCH-PAIRS : 2nd (pair (1st p) (2nd p)) .
+rewrites: 211 in 0ms cpu (0ms real) (~ rewrites/second)
+result Exp: p (S (S (K S) (S (S (K S) (S (K K) (K S))) (S (K K) (K K)))) (S (K K) (K
+    K)) p)
+==========================================
+rewrite in CHURCH-PAIRS : 2nd p .
+rewrites: 29 in 0ms cpu (0ms real) (~ rewrites/second)
+result Exp: p (S (S (K S) (S (S (K S) (S (K K) (K S))) (S (K K) (K K)))) (S (K K) (K
+    K)) p)
+==========================================
+rewrite in CHURCH-FIBONACCI : display(fibo $4) .
+rewrites: 92603 in 729ms cpu (730ms real) (126861 rewrites/second)
+result Var: $(3)
+==========================================
+rewrite in CHURCH-PREDECESSOR : display(pred $0) .
+rewrites: 5717 in 0ms cpu (0ms real) (~ rewrites/second)
+result Var: $(0)
+==========================================
+rewrite in CHURCH-PREDECESSOR : display(pred $1) .
+rewrites: 6479 in 0ms cpu (2ms real) (~ rewrites/second)
+result Var: $(0)
+==========================================
+rewrite in CHURCH-PREDECESSOR : display(pred $5) .
+rewrites: 147471 in 1193ms cpu (1199ms real) (123587 rewrites/second)
+result Var: $(4)
+==========================================
+rewrite in CHURCH-SUBTRACTION : display(sub $3 $5) .
+rewrites: 192901 in 456ms cpu (456ms real) (422438 rewrites/second)
+result Var: $(0)
+==========================================
+rewrite in FIXED-POINT-COMBINATORS : Y-name .
+rewrites: 46 in 0ms cpu (0ms real) (~ rewrites/second)
+result Exp: S (S (S (K S) (S (K K) (S K K))) (S (S (K S) (S (S (K S) (K K)) (K K))) (S
+    (S (K S) (K K)) (K K)))) (S (S (K S) (S (K K) (S K K))) (S (S (K S) (S (S (K S) (K
+    K)) (K K))) (S (S (K S) (K K)) (K K))))
+==========================================
+rewrite in FIXED-POINT-COMBINATORS : Y-value .
+rewrites: 151 in 0ms cpu (0ms real) (~ rewrites/second)
+result Exp: S (S (S (K S) (S (K K) (S K K))) (S (S (K S) (S (S (K S) (S (K K) (K S)))
+    (S (S (K S) (S (S (K S) (S (K K) (K S))) (S (S (K S) (S (K K) (K K))) (S (S (K S)
+    (K K)) (K K))))) (S (S (K S) (S (K K) (K K))) (S (S (K S) (K K)) (K K)))))) (S (S
+    (K S) (S (S (K S) (S (K K) (K S))) (S (K K) (K K)))) (S (K K) (K K))))) (S (S (K
+    S) (S (K K) (S K K))) (S (S (K S) (S (S (K S) (S (K K) (K S))) (S (S (K S) (S (S (
+    K S) (S (K K) (K S))) (S (S (K S) (S (K K) (K K))) (S (S (K S) (K K)) (K K))))) (S
+    (S (K S) (S (K K) (K K))) (S (S (K S) (K K)) (K K)))))) (S (S (K S) (S (S (K S) (S
+    (K K) (K S))) (S (K K) (K K)))) (S (K K) (K K)))))
+==========================================
+rewrite in FIXED-POINT-COMBINATORS : Y-Turing .
+rewrites: 39 in 0ms cpu (0ms real) (~ rewrites/second)
+result Exp: S (S (S (K S) (K K)) (K K) (S (S (K S) (S (S (K S) (K K)) (K K))) (S (S (K
+    S) (S (S (K S) (S (K K) (S K K))) (S (K K) (S K K)))) (S (S (K S) (K K)) (K K)))))
+    (S (S (K S) (S (S (K S) (S (K K) (S K K))) (S (K K) (S K K)))) (S (S (K S) (K K))
+    (K K)) (S (S (K S) (S (S (K S) (K K)) (K K))) (S (S (K S) (S (S (K S) (S (K K) (S
+    K K))) (S (K K) (S K K)))) (S (S (K S) (K K)) (K K)))))
+==========================================
+rewrite in FIXED-POINT-COMBINATORS : Y-Turing-value .
+rewrites: 121 in 0ms cpu (0ms real) (~ rewrites/second)
+result Exp: S (S (S (K S) (K K)) (K K) (S (S (K S) (S (S (K S) (K K)) (K K))) (S (S (K
+    S) (S (S (K S) (S (K K) (K S))) (S (S (K S) (S (S (K S) (S (K K) (K S))) (S (S (K
+    S) (S (S (K S) (S (K K) (K S))) (S (S (K S) (S (K K) (K K))) (S (K K) (S K K)))))
+    (S (S (K S) (S (K K) (K K))) (S (K K) (S K K)))))) (S (S (K S) (S (K K) (K K))) (S
+    (S (K S) (K K)) (K K)))))) (S (S (K S) (S (S (K S) (S (K K) (K S))) (S (K K) (K
+    K)))) (S (K K) (K K)))))) (S (S (K S) (S (S (K S) (S (K K) (K S))) (S (S (K S) (S
+    (S (K S) (S (K K) (K S))) (S (S (K S) (S (S (K S) (S (K K) (K S))) (S (S (K S) (S
+    (K K) (K K))) (S (K K) (S K K))))) (S (S (K S) (S (K K) (K K))) (S (K K) (S K
+    K)))))) (S (S (K S) (S (K K) (K K))) (S (S (K S) (K K)) (K K)))))) (S (S (K S) (S
+    (S (K S) (S (K K) (K S))) (S (K K) (K K)))) (S (K K) (K K))) (S (S (K S) (S (S (K
+    S) (K K)) (K K))) (S (S (K S) (S (S (K S) (S (K K) (K S))) (S (S (K S) (S (S (K S)
+    (S (K K) (K S))) (S (S (K S) (S (S (K S) (S (K K) (K S))) (S (S (K S) (S (K K) (K
+    K))) (S (K K) (S K K))))) (S (S (K S) (S (K K) (K K))) (S (K K) (S K K)))))) (S (S
+    (K S) (S (K K) (K K))) (S (S (K S) (K K)) (K K)))))) (S (S (K S) (S (S (K S) (S (K
+    K) (K S))) (S (K K) (K K)))) (S (K K) (K K))))))
+==========================================
+rewrite in LAMBDA-WITH-BUILTINS : (/\ x . /\ y . + x (y 7)) 5 (/\ y . * y 3) .
+rewrites: 189 in 0ms cpu (0ms real) (~ rewrites/second)
+result Int: 26
+==========================================
+rewrite in LAMBDA-WITH-BUILTINS : (/\ x y . if x (* (y x) x) (/\ y . y x)) 3 (/\ x . *
+    2 x) .
+rewrites: 329 in 0ms cpu (0ms real) (~ rewrites/second)
+result Int: 18
+==========================================
+rewrite in LAMBDA-WITH-BUILTINS : (/\ x y . if x (* (y x) x) (/\ y . y x)) 0 (/\ x . *
+    2 x) .
+rewrites: 170 in 0ms cpu (0ms real) (~ rewrites/second)
+result Exp: S (S (S (K S) (S (S (K S) (S (K K) (K S))) (S (K K) (K K)))) (S (K K) (K
+    K)) 0 (S (S (K *) (K 2)) (S K K))) (S (S (K S) (S (K K) (K K))) (S (K K) (S K K))
+    0 (S (S (K *) (K 2)) (S K K)))
+==========================================
+rewrite in LAMBDA-WITH-BUILTINS : (/\ x y . if x (* (y x) x) (/\ y . y x)) x (/\ x . *
+    2 x) .
+rewrites: 145 in 0ms cpu (0ms real) (~ rewrites/second)
+result Exp: if x (S (S (K S) (S (S (K S) (S (K K) (K *))) (S (S (K S) (S (S (K S) (K
+    K)) (K K))) (S (K K) (S K K))))) (S (K K) (S K K)) x (S (S (K *) (K 2)) (S K K)))
+    (S (S (K S) (S (S (K S) (S (K K) (K S))) (S (S (K S) (S (S (K S) (S (K K) (K S)))
+    (S (K K) (K K)))) (S (K K) (K K))))) (S (S (K S) (S (K K) (K K))) (S (K K) (S K
+    K))) x (S (S (K *) (K 2)) (S K K)))
+==========================================
+rewrite in FACTORIALS-WITH-BUILTINS : factorial-untypable 10 .
+rewrites: 331621 in 1819ms cpu (1819ms real) (182221 rewrites/second)
+result Int: 3628800
+==========================================
+rewrite in FACTORIALS-WITH-BUILTINS : factorial-name 10 .
+rewrites: 105937 in 656ms cpu (656ms real) (161335 rewrites/second)
+result Int: 3628800
+==========================================
+rewrite in FACTORIALS-WITH-BUILTINS : factorial-value 10 .
+rewrites: 185492 in 1019ms cpu (1022ms real) (181866 rewrites/second)
+result Int: 3628800
+==========================================
+rewrite in FACTORIALS-WITH-BUILTINS : factorial-Turing 10 .
+rewrites: 112852 in 593ms cpu (595ms real) (190212 rewrites/second)
+result Int: 3628800
+==========================================
+rewrite in FACTORIALS-WITH-BUILTINS : factorial-Turing-value 10 .
+rewrites: 204849 in 1326ms cpu (1327ms real) (154418 rewrites/second)
+result Int: 3628800
+==========================================
+rewrite in FACTORIALS-WITH-BUILTINS : factorial-fix 10 .
+rewrites: 96533 in 409ms cpu (412ms real) (235461 rewrites/second)
+result Int: 3628800
+Bye.

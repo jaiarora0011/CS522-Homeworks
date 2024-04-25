@@ -1,0 +1,381 @@
+                     \||||||||||||||||||/
+                   --- Welcome to Maude ---
+                     /||||||||||||||||||\
+            Maude alpha96b built: Nov 15 2012 18:03:52
+            Copyright 1997-2011 SRI International
+                   Wed Mar 20 10:34:31 2013
+==========================================
+rewrite in TEST-SUBSTITUTION : (/\ x . /\ y . x y z)[x / z] .
+rewrites: 82 in 0ms cpu (0ms real) (~ rewrites/second)
+result Exp: /\ '$1 . /\ y . '$1 y x
+==========================================
+rewrite in TEST-SUBSTITUTION : (/\ u . /\ x . /\ y . x y z)[x / z] .
+rewrites: 96 in 0ms cpu (0ms real) (~ rewrites/second)
+result Exp: /\ u . /\ '$2 . /\ y . '$2 y x
+==========================================
+rewrite in TEST-SUBSTITUTION : (/\ x . x z) (/\ x . /\ y . x y z)[x / z] .
+rewrites: 123 in 0ms cpu (0ms real) (~ rewrites/second)
+result Exp: (/\ '$3 . '$3 x) (/\ '$4 . /\ y . '$4 y x)
+==========================================
+rewrite in COMBINATORY-LOGIC : S K K x .
+rewrites: 2 in 0ms cpu (0ms real) (~ rewrites/second)
+result Id: x
+==========================================
+rewrite in COMBINATORY-LOGIC : S K K (S K K) .
+rewrites: 2 in 0ms cpu (0ms real) (~ rewrites/second)
+result Exp: S K K
+==========================================
+rewrite in DE-BRUIJN : (/\ {0}) x .
+rewrites: 6 in 0ms cpu (0ms real) (~ rewrites/second)
+result Id: x
+==========================================
+rewrite in DE-BRUIJN : (/\ /\ {0}) x .
+rewrites: 13 in 0ms cpu (0ms real) (~ rewrites/second)
+result Exp: /\ {0}
+==========================================
+rewrite in DE-BRUIJN : (/\ /\ {1}) x .
+rewrites: 12 in 0ms cpu (0ms real) (~ rewrites/second)
+result Exp: /\ x
+==========================================
+rewrite in DE-BRUIJN : (/\ /\ x {1} y) x .
+rewrites: 20 in 0ms cpu (0ms real) (~ rewrites/second)
+result Exp: /\ x x y
+==========================================
+rewrite in DE-BRUIJN-OPTIMIZED : (/\ {0}) x .
+rewrites: 2 in 0ms cpu (0ms real) (~ rewrites/second)
+result Id: x
+==========================================
+rewrite in DE-BRUIJN-OPTIMIZED : (/\ /\ {0}) x .
+rewrites: 6 in 0ms cpu (0ms real) (~ rewrites/second)
+result Exp: /\ {0}
+==========================================
+rewrite in DE-BRUIJN-OPTIMIZED : (/\ /\ {1}) x .
+rewrites: 5 in 0ms cpu (0ms real) (~ rewrites/second)
+result Exp: /\ x
+==========================================
+rewrite in DE-BRUIJN-OPTIMIZED : (/\ /\ x {1} y) x .
+rewrites: 9 in 0ms cpu (0ms real) (~ rewrites/second)
+result Exp: /\ x x y
+==========================================
+rewrite in LAMBDA : (/\ x . x) y .
+rewrites: 8 in 0ms cpu (0ms real) (~ rewrites/second)
+result Id: y
+==========================================
+rewrite in LAMBDA : (/\ x . x) (/\ x . x) .
+rewrites: 8 in 0ms cpu (0ms real) (~ rewrites/second)
+result Exp: /\ x . x
+==========================================
+rewrite in LAMBDA : (/\ f . (/\ x . f x) y) g .
+rewrites: 48 in 0ms cpu (0ms real) (~ rewrites/second)
+result Exp: g y
+==========================================
+rewrite in LAMBDA : (/\ z . z z) (/\ x . /\ y . x y) .
+rewrites: 68 in 0ms cpu (0ms real) (~ rewrites/second)
+result Exp: /\ y . (/\ x . /\ y . x y) y
+==========================================
+rewrite in LAMBDA : (/\ z . /\ a . /\ b . z a b) (a b) .
+rewrites: 116 in 0ms cpu (0ms real) (~ rewrites/second)
+result Exp: /\ '$5 . /\ '$6 . a b '$5 '$6
+==========================================
+rewrite in LAMBDA : /\ x . x x .
+rewrites: 0 in 0ms cpu (0ms real) (~ rewrites/second)
+result Exp: /\ x . x x
+==========================================
+rewrite in LAMBDA : /\ x . f (x x) .
+rewrites: 0 in 0ms cpu (0ms real) (~ rewrites/second)
+result Exp: /\ x . f (x x)
+==========================================
+rewrite in CURRYING : (/\ x y z . x y z) a b .
+rewrites: 84 in 0ms cpu (0ms real) (~ rewrites/second)
+result Exp: /\ z . a b z
+==========================================
+rewrite in CURRYING : (/\ x y z . x y z) (/\ x y z . x y z) a b .
+rewrites: 328 in 0ms cpu (0ms real) (~ rewrites/second)
+result Exp: /\ z . a b z
+==========================================
+rewrite in CURRYING : (/\ x y z . (/\ x y z . x y z) y z) (/\ x y z . x y z) a b .
+rewrites: 338 in 0ms cpu (0ms real) (~ rewrites/second)
+result Exp: /\ z . a b z
+==========================================
+rewrite in CHURCH-BOOLEANS : and $true $false .
+rewrites: 260 in 0ms cpu (0ms real) (~ rewrites/second)
+result Exp: /\ x . /\ y . y
+==========================================
+rewrite in CHURCH-BOOLEANS : and (and x y) z .
+rewrites: 363 in 0ms cpu (0ms real) (~ rewrites/second)
+result Exp: x y (/\ x . /\ y . y) z (/\ x . /\ y . y)
+==========================================
+rewrite in CHURCH-BOOLEANS : and x (and y z) .
+rewrites: 283 in 0ms cpu (0ms real) (~ rewrites/second)
+result Exp: x (y z (/\ x . /\ y . y)) (/\ x . /\ y . y)
+==========================================
+rewrite in CHURCH-BOOLEANS : and (and $true y) z .
+rewrites: 492 in 0ms cpu (0ms real) (~ rewrites/second)
+result Exp: y z (/\ x . /\ y . y)
+==========================================
+rewrite in CHURCH-BOOLEANS : and $true (and y z) .
+rewrites: 647 in 0ms cpu (0ms real) (~ rewrites/second)
+result Exp: y z (/\ x . /\ y . y)
+==========================================
+rewrite in CHURCH-BOOLEANS : and (and $false y) z .
+rewrites: 522 in 0ms cpu (0ms real) (~ rewrites/second)
+result Exp: /\ x . /\ y . y
+==========================================
+rewrite in CHURCH-BOOLEANS : and $false (and y z) .
+rewrites: 358 in 0ms cpu (0ms real) (~ rewrites/second)
+result Exp: /\ x . /\ y . y
+==========================================
+rewrite in CHURCH-BOOLEANS : and (and $false $true) $false t f .
+rewrites: 637 in 3ms cpu (0ms real) (191119 rewrites/second)
+result Id: f
+==========================================
+rewrite in CHURCH-BOOLEANS : and $false (and $true $false) t f .
+rewrites: 495 in 0ms cpu (0ms real) (~ rewrites/second)
+result Id: f
+==========================================
+rewrite in DISPLAY-CHURCH-NUMERALS : display($5) .
+rewrites: 427 in 0ms cpu (0ms real) (~ rewrites/second)
+result Var: $(5)
+==========================================
+rewrite in DISPLAY-CHURCH-NUMERALS : display(succ $5) .
+rewrites: 974 in 0ms cpu (0ms real) (~ rewrites/second)
+result Var: $(6)
+==========================================
+rewrite in DISPLAY-CHURCH-NUMERALS : display(succ' $5) .
+rewrites: 825 in 0ms cpu (0ms real) (~ rewrites/second)
+result Var: $(6)
+==========================================
+rewrite in DISPLAY-CHURCH-NUMERALS : display(succ (/\ x y . x)) .
+rewrites: 480 in 0ms cpu (0ms real) (~ rewrites/second)
+result Exp: /\ k . $(1) k
+==========================================
+rewrite in DISPLAY-CHURCH-NUMERALS : display(succ' (/\ x y . x)) .
+rewrites: 478 in 0ms cpu (0ms real) (~ rewrites/second)
+result Exp: $(1) (/\ k . $(1) k)
+==========================================
+rewrite in DISPLAY-CHURCH-NUMERALS : display(plus $5 $5) .
+rewrites: 2219 in 0ms cpu (1ms real) (~ rewrites/second)
+result Var: $(10)
+==========================================
+rewrite in DISPLAY-CHURCH-NUMERALS : display(plus $0 $5) .
+rewrites: 1156 in 0ms cpu (0ms real) (~ rewrites/second)
+result Var: $(5)
+==========================================
+rewrite in DISPLAY-CHURCH-NUMERALS : display(plus (succ $5) $4) .
+rewrites: 3161 in 0ms cpu (1ms real) (~ rewrites/second)
+result Var: $(10)
+==========================================
+rewrite in DISPLAY-CHURCH-NUMERALS : display(succ (plus $5 $4)) .
+rewrites: 2944 in 3ms cpu (1ms real) (883288 rewrites/second)
+result Var: $(10)
+==========================================
+rewrite in DISPLAY-CHURCH-NUMERALS : display(mult $5 $5) .
+rewrites: 8666 in 10ms cpu (10ms real) (866600 rewrites/second)
+result Var: $(25)
+==========================================
+rewrite in DISPLAY-CHURCH-NUMERALS : display(power $5 $3) .
+rewrites: 122883 in 2719ms cpu (2719ms real) (45180 rewrites/second)
+result Var: $(125)
+==========================================
+rewrite in CHURCH-PAIRS : 1st (pair a b) .
+rewrites: 309 in 0ms cpu (0ms real) (~ rewrites/second)
+result Id: a
+==========================================
+rewrite in CHURCH-PAIRS : 2nd (pair a b) .
+rewrites: 309 in 0ms cpu (0ms real) (~ rewrites/second)
+result Id: b
+==========================================
+rewrite in CHURCH-PAIRS : pair (1st p) (2nd p) .
+rewrites: 387 in 0ms cpu (0ms real) (~ rewrites/second)
+result Exp: /\ b . b ((/\ '$18 . '$18 (/\ x . /\ y . x)) p) ((/\ p . p (/\ x . /\ y . y)) p)
+==========================================
+rewrite in CHURCH-PAIRS : 1st (pair (1st p) (2nd p)) .
+rewrites: 1188 in 0ms cpu (0ms real) (~ rewrites/second)
+result Exp: p (/\ x . /\ y . x)
+==========================================
+rewrite in CHURCH-PAIRS : 1st p .
+rewrites: 45 in 0ms cpu (0ms real) (~ rewrites/second)
+result Exp: p (/\ x . /\ y . x)
+==========================================
+rewrite in CHURCH-PAIRS : 2nd (pair (1st p) (2nd p)) .
+rewrites: 1058 in 0ms cpu (0ms real) (~ rewrites/second)
+result Exp: p (/\ x . /\ y . y)
+==========================================
+rewrite in CHURCH-PAIRS : 2nd p .
+rewrites: 45 in 0ms cpu (0ms real) (~ rewrites/second)
+result Exp: p (/\ x . /\ y . y)
+==========================================
+rewrite in CHURCH-FIBONACCI : display(fibo $4) .
+rewrites: 432400 in 79ms cpu (80ms real) (5405337 rewrites/second)
+result Var: $(3)
+==========================================
+rewrite in CHURCH-PREDECESSOR : display(pred $0) .
+rewrites: 2509 in 0ms cpu (0ms real) (~ rewrites/second)
+result Var: $(0)
+==========================================
+rewrite in CHURCH-PREDECESSOR : display(pred $1) .
+rewrites: 10717 in 3ms cpu (2ms real) (3215421 rewrites/second)
+result Var: $(0)
+==========================================
+rewrite in CHURCH-PREDECESSOR : display(pred $5) .
+rewrites: 316949 in 63ms cpu (64ms real) (5004800 rewrites/second)
+result Var: $(4)
+==========================================
+rewrite in CHURCH-SUBTRACTION : display(sub $5 $3) .
+rewrites: 1300434 in 226ms cpu (229ms real) (5737580 rewrites/second)
+result Var: $(2)
+==========================================
+rewrite in CHURCH-SUBTRACTION : display(sub $3 $5) .
+rewrites: 486301 in 89ms cpu (89ms real) (5403704 rewrites/second)
+result Var: $(0)
+==========================================
+rewrite in FIXED-POINT-COMBINATORS : Y-name .
+rewrites: 1 in 0ms cpu (0ms real) (~ rewrites/second)
+result Exp: /\ f . (/\ x . f (x x)) (/\ x . f (x x))
+==========================================
+rewrite in FIXED-POINT-COMBINATORS : Y-value .
+rewrites: 1 in 0ms cpu (0ms real) (~ rewrites/second)
+result Exp: /\ f . (/\ x . f (/\ y . x x y)) (/\ x . f (/\ y . x x y))
+==========================================
+rewrite in FIXED-POINT-COMBINATORS : Y-Turing .
+rewrites: 82 in 0ms cpu (0ms real) (~ rewrites/second)
+result Exp: /\ f . f ((/\ x . /\ f . f (x x f)) (/\ x . /\ f . f (x x f)) f)
+==========================================
+rewrite in FIXED-POINT-COMBINATORS : Y-Turing-value .
+rewrites: 174 in 0ms cpu (0ms real) (~ rewrites/second)
+result Exp: /\ f . f (/\ y . (/\ x . /\ f . f (/\ y . x x f y)) (/\ x . /\ f . f (/\ y . x x f y)) f y)
+==========================================
+rewrite in FIXED-POINT-COMBINATORS : Y-Klop .
+rewrites: 2685503 in 1366ms cpu (1368ms real) (1965129 rewrites/second)
+result Exp: /\ r . r ((/\ a . /\ b . /\ c . /\ d . /\ e . /\ f . /\ g . /\ h . /\ i . /\ j . /\ k . /\ l . /\ m
+    . /\ n . /\ o . /\ p . /\ q . /\ s . /\ t . /\ u . /\ v . /\ w . /\ x . /\ y . /\ z . /\ r . r (t h i s i s
+    a f i x e d p o i n t c o m b i n a t o r)) (/\ a . /\ b . /\ c . /\ d . /\ e . /\ f . /\ g . /\ h . /\ i .
+    /\ j . /\ k . /\ l . /\ m . /\ n . /\ o . /\ p . /\ q . /\ s . /\ t . /\ u . /\ v . /\ w . /\ x . /\ y . /\
+    z . /\ r . r (t h i s i s a f i x e d p o i n t c o m b i n a t o r)) (/\ a . /\ b . /\ c . /\ d . /\ e .
+    /\ f . /\ g . /\ h . /\ i . /\ j . /\ k . /\ l . /\ m . /\ n . /\ o . /\ p . /\ q . /\ s . /\ t . /\ u . /\
+    v . /\ w . /\ x . /\ y . /\ z . /\ r . r (t h i s i s a f i x e d p o i n t c o m b i n a t o r)) (/\ a .
+    /\ b . /\ c . /\ d . /\ e . /\ f . /\ g . /\ h . /\ i . /\ j . /\ k . /\ l . /\ m . /\ n . /\ o . /\ p . /\
+    q . /\ s . /\ t . /\ u . /\ v . /\ w . /\ x . /\ y . /\ z . /\ r . r (t h i s i s a f i x e d p o i n t c o
+    m b i n a t o r)) (/\ a . /\ b . /\ c . /\ d . /\ e . /\ f . /\ g . /\ h . /\ i . /\ j . /\ k . /\ l . /\ m
+    . /\ n . /\ o . /\ p . /\ q . /\ s . /\ t . /\ u . /\ v . /\ w . /\ x . /\ y . /\ z . /\ r . r (t h i s i s
+    a f i x e d p o i n t c o m b i n a t o r)) (/\ a . /\ b . /\ c . /\ d . /\ e . /\ f . /\ g . /\ h . /\ i .
+    /\ j . /\ k . /\ l . /\ m . /\ n . /\ o . /\ p . /\ q . /\ s . /\ t . /\ u . /\ v . /\ w . /\ x . /\ y . /\
+    z . /\ r . r (t h i s i s a f i x e d p o i n t c o m b i n a t o r)) (/\ a . /\ b . /\ c . /\ d . /\ e .
+    /\ f . /\ g . /\ h . /\ i . /\ j . /\ k . /\ l . /\ m . /\ n . /\ o . /\ p . /\ q . /\ s . /\ t . /\ u . /\
+    v . /\ w . /\ x . /\ y . /\ z . /\ r . r (t h i s i s a f i x e d p o i n t c o m b i n a t o r)) (/\ a .
+    /\ b . /\ c . /\ d . /\ e . /\ f . /\ g . /\ h . /\ i . /\ j . /\ k . /\ l . /\ m . /\ n . /\ o . /\ p . /\
+    q . /\ s . /\ t . /\ u . /\ v . /\ w . /\ x . /\ y . /\ z . /\ r . r (t h i s i s a f i x e d p o i n t c o
+    m b i n a t o r)) (/\ a . /\ b . /\ c . /\ d . /\ e . /\ f . /\ g . /\ h . /\ i . /\ j . /\ k . /\ l . /\ m
+    . /\ n . /\ o . /\ p . /\ q . /\ s . /\ t . /\ u . /\ v . /\ w . /\ x . /\ y . /\ z . /\ r . r (t h i s i s
+    a f i x e d p o i n t c o m b i n a t o r)) (/\ a . /\ b . /\ c . /\ d . /\ e . /\ f . /\ g . /\ h . /\ i .
+    /\ j . /\ k . /\ l . /\ m . /\ n . /\ o . /\ p . /\ q . /\ s . /\ t . /\ u . /\ v . /\ w . /\ x . /\ y . /\
+    z . /\ r . r (t h i s i s a f i x e d p o i n t c o m b i n a t o r)) (/\ a . /\ b . /\ c . /\ d . /\ e .
+    /\ f . /\ g . /\ h . /\ i . /\ j . /\ k . /\ l . /\ m . /\ n . /\ o . /\ p . /\ q . /\ s . /\ t . /\ u . /\
+    v . /\ w . /\ x . /\ y . /\ z . /\ r . r (t h i s i s a f i x e d p o i n t c o m b i n a t o r)) (/\ a .
+    /\ b . /\ c . /\ d . /\ e . /\ f . /\ g . /\ h . /\ i . /\ j . /\ k . /\ l . /\ m . /\ n . /\ o . /\ p . /\
+    q . /\ s . /\ t . /\ u . /\ v . /\ w . /\ x . /\ y . /\ z . /\ r . r (t h i s i s a f i x e d p o i n t c o
+    m b i n a t o r)) (/\ a . /\ b . /\ c . /\ d . /\ e . /\ f . /\ g . /\ h . /\ i . /\ j . /\ k . /\ l . /\ m
+    . /\ n . /\ o . /\ p . /\ q . /\ s . /\ t . /\ u . /\ v . /\ w . /\ x . /\ y . /\ z . /\ r . r (t h i s i s
+    a f i x e d p o i n t c o m b i n a t o r)) (/\ a . /\ b . /\ c . /\ d . /\ e . /\ f . /\ g . /\ h . /\ i .
+    /\ j . /\ k . /\ l . /\ m . /\ n . /\ o . /\ p . /\ q . /\ s . /\ t . /\ u . /\ v . /\ w . /\ x . /\ y . /\
+    z . /\ r . r (t h i s i s a f i x e d p o i n t c o m b i n a t o r)) (/\ a . /\ b . /\ c . /\ d . /\ e .
+    /\ f . /\ g . /\ h . /\ i . /\ j . /\ k . /\ l . /\ m . /\ n . /\ o . /\ p . /\ q . /\ s . /\ t . /\ u . /\
+    v . /\ w . /\ x . /\ y . /\ z . /\ r . r (t h i s i s a f i x e d p o i n t c o m b i n a t o r)) (/\ a .
+    /\ b . /\ c . /\ d . /\ e . /\ f . /\ g . /\ h . /\ i . /\ j . /\ k . /\ l . /\ m . /\ n . /\ o . /\ p . /\
+    q . /\ s . /\ t . /\ u . /\ v . /\ w . /\ x . /\ y . /\ z . /\ r . r (t h i s i s a f i x e d p o i n t c o
+    m b i n a t o r)) (/\ a . /\ b . /\ c . /\ d . /\ e . /\ f . /\ g . /\ h . /\ i . /\ j . /\ k . /\ l . /\ m
+    . /\ n . /\ o . /\ p . /\ q . /\ s . /\ t . /\ u . /\ v . /\ w . /\ x . /\ y . /\ z . /\ r . r (t h i s i s
+    a f i x e d p o i n t c o m b i n a t o r)) (/\ a . /\ b . /\ c . /\ d . /\ e . /\ f . /\ g . /\ h . /\ i .
+    /\ j . /\ k . /\ l . /\ m . /\ n . /\ o . /\ p . /\ q . /\ s . /\ t . /\ u . /\ v . /\ w . /\ x . /\ y . /\
+    z . /\ r . r (t h i s i s a f i x e d p o i n t c o m b i n a t o r)) (/\ a . /\ b . /\ c . /\ d . /\ e .
+    /\ f . /\ g . /\ h . /\ i . /\ j . /\ k . /\ l . /\ m . /\ n . /\ o . /\ p . /\ q . /\ s . /\ t . /\ u . /\
+    v . /\ w . /\ x . /\ y . /\ z . /\ r . r (t h i s i s a f i x e d p o i n t c o m b i n a t o r)) (/\ a .
+    /\ b . /\ c . /\ d . /\ e . /\ f . /\ g . /\ h . /\ i . /\ j . /\ k . /\ l . /\ m . /\ n . /\ o . /\ p . /\
+    q . /\ s . /\ t . /\ u . /\ v . /\ w . /\ x . /\ y . /\ z . /\ r . r (t h i s i s a f i x e d p o i n t c o
+    m b i n a t o r)) (/\ a . /\ b . /\ c . /\ d . /\ e . /\ f . /\ g . /\ h . /\ i . /\ j . /\ k . /\ l . /\ m
+    . /\ n . /\ o . /\ p . /\ q . /\ s . /\ t . /\ u . /\ v . /\ w . /\ x . /\ y . /\ z . /\ r . r (t h i s i s
+    a f i x e d p o i n t c o m b i n a t o r)) (/\ a . /\ b . /\ c . /\ d . /\ e . /\ f . /\ g . /\ h . /\ i .
+    /\ j . /\ k . /\ l . /\ m . /\ n . /\ o . /\ p . /\ q . /\ s . /\ t . /\ u . /\ v . /\ w . /\ x . /\ y . /\
+    z . /\ r . r (t h i s i s a f i x e d p o i n t c o m b i n a t o r)) (/\ a . /\ b . /\ c . /\ d . /\ e .
+    /\ f . /\ g . /\ h . /\ i . /\ j . /\ k . /\ l . /\ m . /\ n . /\ o . /\ p . /\ q . /\ s . /\ t . /\ u . /\
+    v . /\ w . /\ x . /\ y . /\ z . /\ r . r (t h i s i s a f i x e d p o i n t c o m b i n a t o r)) (/\ a .
+    /\ b . /\ c . /\ d . /\ e . /\ f . /\ g . /\ h . /\ i . /\ j . /\ k . /\ l . /\ m . /\ n . /\ o . /\ p . /\
+    q . /\ s . /\ t . /\ u . /\ v . /\ w . /\ x . /\ y . /\ z . /\ r . r (t h i s i s a f i x e d p o i n t c o
+    m b i n a t o r)) (/\ a . /\ b . /\ c . /\ d . /\ e . /\ f . /\ g . /\ h . /\ i . /\ j . /\ k . /\ l . /\ m
+    . /\ n . /\ o . /\ p . /\ q . /\ s . /\ t . /\ u . /\ v . /\ w . /\ x . /\ y . /\ z . /\ r . r (t h i s i s
+    a f i x e d p o i n t c o m b i n a t o r)) (/\ a . /\ b . /\ c . /\ d . /\ e . /\ f . /\ g . /\ h . /\ i .
+    /\ j . /\ k . /\ l . /\ m . /\ n . /\ o . /\ p . /\ q . /\ s . /\ t . /\ u . /\ v . /\ w . /\ x . /\ y . /\
+    z . /\ r . r (t h i s i s a f i x e d p o i n t c o m b i n a t o r)) r)
+==========================================
+rewrite in FACTORIALS : display(factorial-untypable $2) .
+rewrites: 2690593 in 473ms cpu (474ms real) (5684715 rewrites/second)
+result Var: $(2)
+==========================================
+rewrite in FACTORIALS : display(factorial-name $2) .
+rewrites: 3003865 in 516ms cpu (516ms real) (5814311 rewrites/second)
+result Var: $(2)
+==========================================
+rewrite in FACTORIALS : display(factorial-value $2) .
+rewrites: 3267901 in 559ms cpu (562ms real) (5835923 rewrites/second)
+result Var: $(2)
+==========================================
+rewrite in FACTORIALS : display(factorial-Turing $2) .
+rewrites: 2042102 in 356ms cpu (359ms real) (5725883 rewrites/second)
+result Var: $(2)
+==========================================
+rewrite in FACTORIALS : display(factorial-Turing-value $2) .
+rewrites: 2210447 in 393ms cpu (394ms real) (5620156 rewrites/second)
+result Var: $(2)
+==========================================
+rewrite in FACTORIALS : display(factorial-Klop $2) .
+rewrites: 62461403 in 31447ms cpu (31449ms real) (1986183 rewrites/second)
+result Var: $(2)
+==========================================
+rewrite in FACTORIALS : display(factorial-fix $2) .
+rewrites: 1728331 in 299ms cpu (301ms real) (5761487 rewrites/second)
+result Var: $(2)
+==========================================
+rewrite in LAMBDA-WITH-BUILTINS : (/\ x . /\ y . + x (y 7)) 5 (/\ y . * y 3) .
+rewrites: 117 in 0ms cpu (0ms real) (~ rewrites/second)
+result Int: 26
+==========================================
+rewrite in LAMBDA-WITH-BUILTINS : (/\ x y . if x (* (y x) x) (/\ y . y x)) 3 (/\ x . * 2 x) .
+rewrites: 391 in 0ms cpu (0ms real) (~ rewrites/second)
+result Int: 18
+==========================================
+rewrite in LAMBDA-WITH-BUILTINS : (/\ x y . if x (* (y x) x) (/\ y . y x)) 0 (/\ x . * 2 x) .
+rewrites: 252 in 0ms cpu (0ms real) (~ rewrites/second)
+result Exp: /\ y . y 0
+==========================================
+rewrite in LAMBDA-WITH-BUILTINS : (/\ x y . if x (* (y x) x) (/\ y . y x)) x (/\ x . * 2 x) .
+rewrites: 164 in 0ms cpu (0ms real) (~ rewrites/second)
+result Exp: if x (* (* 2 x) x) (/\ y . y x)
+==========================================
+rewrite in FACTORIALS-WITH-BUILTINS : factorial-untypable 10 .
+rewrites: 20355 in 16ms cpu (20ms real) (1221348 rewrites/second)
+result Int: 3628800
+==========================================
+rewrite in FACTORIALS-WITH-BUILTINS : factorial-name 10 .
+rewrites: 29283 in 23ms cpu (23ms real) (1255057 rewrites/second)
+result Int: 3628800
+==========================================
+rewrite in FACTORIALS-WITH-BUILTINS : factorial-value 10 .
+rewrites: 44476 in 26ms cpu (27ms real) (1667954 rewrites/second)
+result Int: 3628800
+==========================================
+rewrite in FACTORIALS-WITH-BUILTINS : factorial-Turing 10 .
+rewrites: 15451 in 9ms cpu (10ms real) (1545254 rewrites/second)
+result Int: 3628800
+==========================================
+rewrite in FACTORIALS-WITH-BUILTINS : factorial-Turing-value 10 .
+rewrites: 20997 in 10ms cpu (12ms real) (2099700 rewrites/second)
+result Int: 3628800
+==========================================
+rewrite in FACTORIALS-WITH-BUILTINS : factorial-Klop 2 .
+rewrites: 8355912 in 6182ms cpu (6185ms real) (1351448 rewrites/second)
+result Int: 2
+==========================================
+rewrite in FACTORIALS-WITH-BUILTINS : factorial-fix 10 .
+rewrites: 16520 in 29ms cpu (28ms real) (550703 rewrites/second)
+result Int: 3628800
+Bye.

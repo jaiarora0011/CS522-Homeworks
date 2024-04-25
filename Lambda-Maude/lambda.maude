@@ -1,0 +1,624 @@
+*** Copyright 2018, Grigore Rosu (University of Illinois). ***
+
+--- This file contains various definitions of untyped lambda calculi,
+--- some based on substitution, others based on combinators, and others
+--- based on de Bruijn nameless encodings.  There are four places
+--- where the definition can be configured, indicated by comments
+--- of the form "!!!SETTING n!!!", with n in {1,2,3,4}.  Specifically,
+--- !!!SETTING 1!!! allows to pick a lambda abstraction which is
+--- either restricted to prohibit reductions in its body or unrestricted;
+--- !!!SETTING 2!!! allows to pick an application operation which is either
+--- unrestricted or prohibits reductions in the argument (call-by-name);
+--- !!!SETTING 3!!! is only related to de Bruijn and allows to either
+--- include the conventional de Bruijn technique or the optimized one;
+--- !!!SETTING 4!!! allows to pick a particular kind of lambda calculus, that
+--- is, standard, call-by-value, with combinators, or with de Bruijn.
+
+--- Example 01: Substitution-based, standard lambda-calculus; that is,
+--- unrestricted lambda-abstraction and unrestricted application
+---   SETTING 1 = LAMBDA-ABSTRACTION-UNRESTRICTED
+---   SETTING 2 = APPLICATION-UNRESTRICTED
+---   SETTING 3 = irrelevant
+---   SETTING 4 = LAMBDA-STANDARD
+
+--- Example 02: Substitution-based lambda-calculus
+--- with no reductions in lambda abstractions
+---   SETTING 1 = LAMBDA-ABSTRACTION-RESTRICTED
+---   SETTING 2 = APPLICATION-UNRESTRICTED
+---   SETTING 3 = irrelevant
+---   SETTING 4 = LAMBDA-STANDARD
+
+--- Example 03: Substitution-based call-by-name lambda-calculus
+--- with reductions allowed in lambda abstractions
+---   SETTING 1 = LAMBDA-ABSTRACTION-UNRESTRICTED
+---   SETTING 2 = APPLICATION-CALL-BY-NAME
+---   SETTING 3 = irrelevant
+---   SETTING 4 = LAMBDA-STANDARD
+
+--- Example 04: Substitution-based call-by-name lambda-calculus
+--- with no reductions allowed in lambda abstractions
+---   SETTING 1 = LAMBDA-ABSTRACTION-RESTRICTED
+---   SETTING 2 = APPLICATION-CALL-BY-NAME
+---   SETTING 3 = irrelevant
+---   SETTING 4 = LAMBDA-STANDARD
+
+--- Example 05: Substitution-based call-by-value lambda-calculus
+--- with reductions allowed in lambda abstractions
+---   SETTING 1 = LAMBDA-ABSTRACTION-UNRESTRICTED
+---   SETTING 2 = irrelevant
+---   SETTING 3 = irrelevant
+---   SETTING 4 = LAMBDA-CALL-BY-VALUE
+
+--- Example 06: Substitution-based call-by-value lambda-calculus
+--- with no reductions allowed in lambda abstractions
+---   SETTING 1 = LAMBDA-ABSTRACTION-RESTRICTED
+---   SETTING 2 = irrelevant
+---   SETTING 3 = irrelevant
+---   SETTING 4 = LAMBDA-CALL-BY-VALUE
+
+--- Example 07: Combinators-based lambda-calculus, unrestricted application
+---   SETTING 1 = irrelevant
+---   SETTING 2 = APPLICATION-UNRESTRICTED
+---   SETTING 3 = irrelevant
+---   SETTING 4 = LAMBDA-WITH-COMBINATORS
+
+--- Example 08: Combinators-based lambda-calculus, call-by-name application
+---   SETTING 1 = irrelevant
+---   SETTING 2 = APPLICATION-CALL-BY-NAME
+---   SETTING 3 = irrelevant
+---   SETTING 4 = LAMBDA-WITH-COMBINATORS
+
+--- Example 09: De Bruijn lambda-calculus, unrestricted application
+---   SETTING 1 = irrelevant
+---   SETTING 2 = APPLICATION-UNRESTRICTED
+---   SETTING 3 = DE-BRUIJN
+---   SETTING 4 = LAMBDA-WITH-DE-BRUIJN
+
+--- Example 10: De Bruijn lambda-calculus, call-by-name application
+---   SETTING 1 = irrelevant
+---   SETTING 2 = APPLICATION-CALL-BY-NAME
+---   SETTING 3 = DE-BRUIJN
+---   SETTING 4 = LAMBDA-WITH-DE-BRUIJN
+
+--- Example 11: Optimized De Bruijn lambda-calculus, unrestricted application
+---   SETTING 1 = irrelevant
+---   SETTING 2 = APPLICATION-UNRESTRICTED
+---   SETTING 3 = DE-BRUIJN-OPTIMIZED
+---   SETTING 4 = LAMBDA-WITH-DE-BRUIJN
+
+--- Example 12: Optimized De Bruijn lambda-calculus, call-by-name application
+---   SETTING 1 = irrelevant
+---   SETTING 2 = APPLICATION-CALL-BY-NAME
+---   SETTING 3 = DE-BRUIJN-OPTIMIZED
+---   SETTING 4 = LAMBDA-WITH-DE-BRUIJN
+
+in builtins
+
+mod GENERIC-EXPRESSION is
+  including PL-ID .
+  sorts Var Builtin Exp .
+  subsort Id < Var .
+  subsort Var Builtin < Exp .
+endm
+
+mod LAMBDA-ABSTRACTION-UNRESTRICTED is
+  including GENERIC-EXPRESSION .
+--- Unrestricted lambda abstraction means that reductions can also take place
+--- inside its body.  So no strategy is defined for /\_._
+  op /\_._ : Var Exp -> Exp [prec 50] .
+endm
+
+mod LAMBDA-ABSTRACTION-RESTRICTED is
+  including GENERIC-EXPRESSION .
+--- Restricted lambda abstraction means that reductions are forbidden
+--- to take place inside its body.  So a strategy is defined for /\_._
+  op /\_._ : Var Exp -> Exp [frozen(2) prec 50] .
+endm
+
+mod LAMBDA-ABSTRACTION is
+--- !!!SETTING 1!!!
+--- Pick one of the following:
+---  including LAMBDA-ABSTRACTION-UNRESTRICTED .
+  including LAMBDA-ABSTRACTION-RESTRICTED .
+endm
+
+mod APPLICATION-UNRESTRICTED is
+  including GENERIC-EXPRESSION .
+--- Unrestricted application means that reductions can take place
+--- anywhere (both in the function and in its argument)
+  op __ : Exp Exp -> Exp [prec 25 gather(E e)] .  --- left associative, binds tighter than /\_._
+endm
+
+mod APPLICATION-CALL-BY-NAME is
+  including GENERIC-EXPRESSION .
+--- Call-by-name means that only the first argument (the function) of
+--- the application needs to be be reduced before the application takes place.
+--- The second argument is not reduced at all.
+  op __ : Exp Exp -> Exp [frozen(2) prec 25 gather(E e)] .
+endm
+
+mod APPLICATION is
+--- !!!SETTING 2!!!
+--- Pick one of the following:
+  including APPLICATION-UNRESTRICTED .
+---  including APPLICATION-CALL-BY-NAME .
+endm
+
+mod SUBSTITUTION is
+  including PL-GENERIC-SUBSTITUTION .
+  including LAMBDA-ABSTRACTION .
+  subsort Exp < GenericTerm .
+  eq bind('/\_._) = 1 .
+  op _[_/_] : Exp Exp Var -> Exp .
+  vars E F : Exp .  var X : Id .
+  eq E[F / X] = substitute(E, F, X) .
+endm
+
+mod TEST-SUBSTITUTION is
+  including SUBSTITUTION .
+  including APPLICATION .
+endm
+
+--- Testing substitution (variable capture)
+rew (/\ x . /\ y . x y z)[x / z] .
+rew (/\ u . /\ x . /\ y . x y z)[x / z] .
+rew ((/\ x . x z) (/\ x . /\ y . x y z))[x / z] .
+
+mod LAMBDA-STANDARD is
+  including SUBSTITUTION .
+  including APPLICATION .
+  var X : Var .  var E F : Exp .
+--- Comment the next rule out to see how big the deasugared
+--- lambda terms are before lambda reduction.
+--- Note that sometimes one may get much faster rewrites if one
+--- makes the rule below an equation instead of a rule.
+--- However, one should be careful with this, because equations
+--- do not obey the frozeness declarations, so one will not
+--- achieve the desired evaluation strategy; in particular,
+--- one may have non-termination where it should terminate.
+  rl (/\ X . E) F => ...HW5...  --- beta reduction
+endm
+
+mod LAMBDA-CALL-BY-VALUE is
+--- Call-by-value lambda calculus differs from other variants of lambda
+--- calculus in that beta reduction is applied only after the two arguments
+--- of the application operation are fully evaluated.  To distinguish
+--- the fully evaluated expressions from the other, a new syntactic
+--- category of values, Val, is typically introduced.  Note that the
+--- beta reduction rule below requires F to be of sort Val.
+--- Also, note that in addition to variables and builtins, the lambda
+--- abstraction is also added as a construct for values.  Maude's
+--- least-sort computation mechanism will guarantee that terms are
+--- always sorted to Val whenever possible, in spite of the overloaded
+--- lambda abstraction.  Call-by-value works best when the lambda-abstraction
+--- is restricted to not evaluate its argument, that is, when we include
+--- LAMBDA-ABSTRACTION-RESTRICTED in module LAMBDA-ABSTRACTION above.
+--- Also, the application operation has to be allowed to evaluate both
+--- its arguments, which is why APPLICATION-UNRESTRICTED is included below.
+  including SUBSTITUTION .
+  including APPLICATION-UNRESTRICTED .
+  var X : Var .  var E : Exp .  var F : Val .
+  sort Val .
+  subsorts Var Builtin < Val < Exp .
+  op /\_._ : Var Exp -> Val [ditto] .
+  rl (/\ X . E) F => E[F / X] .  --- beta reduction
+endm
+
+mod COMBINATORY-LOGIC is
+  including APPLICATION .
+  ops S K : -> Exp .
+  var E F G : Exp .
+--- You may comment out the rules below to see how huge
+--- the SK representations of even small lambda terms can be.
+--- Like in the case of lambda with substitution above, making
+--- these rules equations may yield faster executions sometimes,
+--- but in general it may lead to unsoundness and non-termination.
+  rl K ...HW5...
+  rl S ...HW5...
+endm
+
+--- Testing combinators
+rew S K K x .        --- S K K is the identity
+rew S K K (S K K) .  --- S K K is the identity
+
+mod LAMBDA-WITH-COMBINATORS is
+  including PL-BOOL .
+--- It does not really matter whether we include the restricted
+--- or the unrestricted variant of the original lambda-abstraction,
+--- because that construct gets eliminated anyway.
+  including LAMBDA-ABSTRACTION-UNRESTRICTED .
+  including COMBINATORY-LOGIC .
+...HW5... (equations defining the translation from lambda calculus to combinators)
+endm
+
+mod DE-BRUIJN-SYNTAX is
+  including APPLICATION .
+  including PL-INT .
+--- Like in the standard lambda-calculus, both restricted and unrestricted
+--- lambda abstraction make sense.  However, for simplicity, we only consider
+--- the restriced lambda abstraction here.  Remove the "frozen" attribute
+--- below if you want to obtain unrestricted abstraction.
+  op /\_ : Exp -> Exp [frozen prec 50] .
+  op {_} : Int -> Var .
+  op _[_/_] : Exp Exp Int -> [Exp] [prec 10] .
+endm
+
+mod DE-BRUIJN is
+  including DE-BRUIJN-SYNTAX .
+...HW5... (equations defining the substitution and lifting, plus one rule for beta-reduction)
+endm
+
+--- Testing De Bruijn
+rew (/\ {0}) x .
+rew (/\ /\ {0}) x .
+rew (/\ /\ {1}) x .
+rew (/\ /\ x {1} y) x .
+
+mod DE-BRUIJN-OPTIMIZED is
+  including DE-BRUIJN-SYNTAX .
+...HW5... (equations defining the substitution and lifting, plus one rule for beta-reduction)
+endm
+
+--- Testing optimized De Bruijn
+rew (/\ {0}) x .
+rew (/\ /\ {0}) x .
+rew (/\ /\ {1}) x .
+rew (/\ /\ x {1} y) x .
+
+mod LAMBDA-WITH-DE-BRUIJN is
+--- There are (at least) two ways to transform a lambda expression into
+--- an equaivalent de Bruijn expression.  One is top down, where one
+--- needs to maintain a mapping from variables to "counter" natural numbers,
+--- making sure that one increases all the counters as one passes lambdas.
+--- Another is bottom up, where one elminates one bound variable at a time
+--- and this way one need not worry about maintaining any counter mapping.
+--- The former is more involved but faster; the latter is simpler but slower;
+--- note, however, that this transformation step is typically cheap anyway
+--- compared to the actual computation, so it does not really matter how we
+--- do it.   My solution below follows the bottom up approach.
+
+--- It does not really matter whether we include the restricted
+--- or the unrestricted variant of the original lambda-abstraction,
+--- because that construct gets eliminated anyway.
+  including LAMBDA-ABSTRACTION-UNRESTRICTED .
+--- !!!SETTING 3!!!
+--- Below, include either the classic de Bruijn or the optimized version.
+---  including DE-BRUIJN .
+  including DE-BRUIJN-OPTIMIZED .
+  op de-Bruijn-ify : Exp Var Int -> [Exp] .
+  var X Y : Var .  var E E1 E2 : Exp .  var N : Int .  var B : Builtin .
+  eq /\ X . E = /\ de-Bruijn-ify(E, X, 0) .
+...HW5...
+endm
+
+mod LAMBDA is
+--- !!!SETTING 4!!!
+--- Make sure that the desired computational infrastructure is included below.
+  including LAMBDA-STANDARD .
+---  including LAMBDA-CALL-BY-VALUE .
+---  including LAMBDA-WITH-COMBINATORS .
+---  including LAMBDA-WITH-DE-BRUIJN .
+endm
+
+--- Testing lambda calculus
+rew (/\ x . x) y .
+rew (/\ x . x) (/\ x . x) .
+rew (/\ f . (/\ x . f x) y) g .           --- non-deterministic but confluent
+rew (/\ z . z z)(/\ x . /\ y . x y) .     --- tricky variable capture possible
+rew (/\ z . /\ a . /\ b . z a b) (a b)  . --- two fresh variables needed
+rew /\ x . x x .                          --- this is fine in isolation
+***rew (/\ x . x x)(/\ x . x x) .            --- should not terminate
+rew /\ x . f (x x) .
+--- The next two should not terminate under unrestricted application
+***rew (/\ x . f (x x)) (/\ x . f (x x)) .        
+***rew /\ f . (/\ x . f (x x)) (/\ x . f (x x)) .
+
+mod CURRYING is
+  including LAMBDA .
+  var X : Var .  var Xs E : Exp .
+--- We do a bit of a syntactic stratch here: using application
+--- to group the binding variables.  It works: it initially
+--- parses uncurried terms to kinds, then to sorts after currying.
+  eq /\ Xs X . E = ...HW5...
+endm
+
+--- Testing currying
+rew (/\ x y z . x y z) a b .
+rew (/\ x y z . x y z) (/\ x y z . x y z) a b .
+rew (/\ x y z . (/\ x y z . x y z) y z) (/\ x y z . x y z) a b .
+
+mod CHURCH-BOOLEANS is
+  including CURRYING .
+--- We prefix with $ Church stuff which may colide with the builtins.
+  ops $true $false and if-then-else : -> Exp .
+  eq $true  = /\ x y . x .
+--- Use constants x, y, etc., of sort Var, and not Maude variables X, Y, etc.
+...HW5...
+endm
+
+--- Testing Church Booleans
+rew and $true $false .
+--- The next two are not necessarily equal.
+rew and (and x y) z .
+rew and x (and y z) .
+--- The next two pairs split cases when x above is true vs. false.  Each pair
+--- may reduce to equal terms in some calculi, but not necessarily in all.
+rew and (and $true y) z .
+rew and $true (and y z) .
+rew and (and $false y) z .
+rew and $false (and y z) .
+--- The only thing which is guaranteed is that they are equal iff x, y, z are
+--- all Church Booleans.  Morover, since the results are lambda abstractions,
+--- one may need to apply them in some calculi in order to see that they are
+--- equal, like below.  One such calculus is combinators with call-by-name.
+rew and (and $false $true) $false t f .
+rew and $false (and $true $false) t f .
+
+mod CHURCH-NUMERALS is
+  including CURRYING .
+  ops $0 $1 $2 $3 $4 $5 succ succ' plus mult power : -> Exp .
+  eq $0 = /\ s z . z .
+  eq $1 = /\ s z . s z .
+  eq $2 = /\ s z . s (s z) .
+  eq $3 = /\ s z . s (s (s z)) .
+  eq $4 = /\ s z . s (s (s (s z))) .
+  eq $5 = /\ s z . s (s (s (s (s z)))) .
+  eq succ  = /\ n s z . n s (s z) .
+  eq succ' = /\ n s z . s (n s z) .
+  eq plus  = /\ m n s z . m s (n s z) .
+  eq mult  = ...HW5...
+  eq power = ...HW5...
+endm
+
+mod DISPLAY-CHURCH-NUMERALS is
+  including CHURCH-NUMERALS .
+  including PL-INT .
+--- Displaying Church numerals.
+--- This has two benefits: first, makes Church numerals easier to read.
+--- Second, under call-by-name, the resulting lambda abstractions may not
+--- be fully evaluated; display(E) enforces the complete evaluation of E.
+  op display : Exp -> [Exp] .
+  op $ : Int -> Var .
+  var E E' : Exp .  var N M : Int .
+  eq display(E) = E (/\ k . $(1) k) $(0) .
+  eq $(N) $(M) = $(N +Int M) .
+ crl $(N) E => $(N) E' if E => E' /\ (E' =/=Bool E) .
+endm
+
+--- Testing Church numerals
+rew display($5) .                   --- displays $(5), not the Church number
+rew display(succ $5) .              --- should be equal to the following
+rew display(succ' $5) .
+rew display(succ (/\ x y . x)) .    --- should not be equal to the following
+rew display(succ' (/\ x y . x)) .
+rew display(plus $5 $5) .           --- $(10)
+rew display(plus $0 $5) .           --- testing Peano for particular values
+rew display(plus (succ $5) $4) .    --- should be equal to the following
+rew display(succ (plus $5 $4)) .
+rew display(mult $5 $5) .           --- $(25)
+rew display(power $5 $3) .          --- $(125); slow with combinators
+
+mod CHURCH-PAIRS is
+  including CHURCH-BOOLEANS .
+  ops pair 1st 2nd : -> Exp .
+...HW5... (3 equations)
+endm
+
+--- Testing pairing
+rew 1st (pair a b) .              --- a
+rew 2nd (pair a b) .              --- b
+--- An expression which is (1st,2nd)-extensionally equivalent to p:
+rew pair (1st p) (2nd p) .
+--- This can be checked as follows:
+rew 1st (pair (1st p) (2nd p)) .  --- should be equal to next
+rew 1st p .
+rew 2nd (pair (1st p) (2nd p)) .  --- should be equal to next
+rew 2nd p .
+
+mod CHURCH-FIBONACCI is
+  including DISPLAY-CHURCH-NUMERALS + CHURCH-PAIRS .
+  ops start-fibo step-fibo fibo : -> Exp .
+...HW5... (3 equations)
+endm
+
+--- Testing Fibonacci
+rew display(fibo $4) .
+***rew display(fibo (mult $5 $2)) .  --- slow
+
+mod CHURCH-PREDECESSOR is
+  including DISPLAY-CHURCH-NUMERALS + CHURCH-PAIRS .
+  ops start-pred step-pred pred : -> Exp .
+...HW5... (3 equations)
+endm
+
+--- Testing Church predecessor
+rew display(pred $0) .  --- 0
+rew display(pred $1) .  --- 0
+rew display(pred $5) .  --- 4
+
+mod CHURCH-SUBTRACTION is
+  including CHURCH-PREDECESSOR .
+  op sub : -> Exp .
+  eq sub = /\ m n . n pred m .
+endm
+
+--- Testing Church subtraction
+rew display(sub $5 $3) .  --- 2 --- may be slow in some settings
+rew display(sub $3 $5) .  --- 0 
+
+mod CHURCH-RELATIONS is
+  including CHURCH-SUBTRACTION .
+  ops sub zero? leq geq equal : -> Exp .
+  eq zero? = /\ n . n (and $false) $true .
+  eq leq   = /\ m n . zero? (sub m n) .
+  eq geq   = /\ m n . zero? (sub n m) .
+  eq equal = /\ m n . and (leq m n) (geq m n) .
+endm
+
+--- Testing Church relations
+--- These work with all strategies, but may take a lot to rewrite,
+--- particularly with combinators; you may want to comment them out
+--- while you work on other parts.  To understand why it takes so long
+--- with combinators, if you comment the two SK rewrite rules above out
+--- and rewrite the first term below, then you can see that the resulting
+--- SK term is huge: it has more than 4,000,000 occurrences of S and K!
+--- To see the true/false result better, we also apply them to t and f.
+***rew equal (mult $5 $3) (pred (power $2 $4)) t f .  --- true; very slow
+***rew equal (mult $5 $3) (succ (power $2 $4)) t f .  --- false
+
+mod FIXED-POINT-COMBINATORS is
+  including CURRYING .
+--- Here are several classic combinators:
+  ops Y-name Y-value Y-Turing Y-Turing-value Y-Klop L : -> Exp .
+  eq Y-name         = ...HW5...
+  eq Y-value        = /\ f . (/\ x . f (/\ y . x x y)) (/\ x . f (/\ y . x x y)) .
+  eq Y-Turing       = (/\ x f . f (x x f)) (/\ x f . f (x x f)) .
+  eq Y-Turing-value = (/\ x f . (f (/\ y . x x f y))) (/\ x f . (f (/\ y . x x f y))) .
+--- The next combinator is funny, but it needs all the alphabet letters.
+--- We could not add the constant "o" to builtin Ids, because of parsing
+--- conflicts with the "one-step capability" operation that is needed in
+--- small-step SOS.  We all wish Maude had a better parser.
+  op o : -> Id .
+  eq Y-Klop = L L L L L L L L L L L L L L L L L L L L L L L L L L .
+  eq L = /\ a b c d e f g h i j k l m n o p q s t u v w x y z r .
+            (r (t h i s  i s  a  f i x e d  p o i n t  c o m b i n a t o r)) .
+endm
+
+--- Testing fixed-point combinators.
+--- These may not terminate under unrestricted lambda-abstraction.
+--- All of them should terminate with restricted lambda-abstractions
+--- (i.e., where no reductions are allowed in lambda abstraction bodies)
+rew Y-name .
+rew Y-value .
+rew Y-Turing .
+rew Y-Turing-value .
+--- The next may run out of memory with combinators; huge SK representation.
+rew Y-Klop .
+
+mod FIXED-POINT-AXIOMATIC is
+--- This is an axiomatic definition (rather than constructive) of the
+--- fixed-point construct.  This is garanteed to only work under call-by-name
+--- in all cases, but Maude seems to avoid nontermination in all our examples.
+  including CURRYING .
+  op fix : -> Builtin .
+  var F : Exp .
+  rl fix F => F (fix F) .
+endm
+
+mod FACTORIALS is
+  including CHURCH-RELATIONS .
+  including FIXED-POINT-COMBINATORS .
+  including FIXED-POINT-AXIOMATIC .
+  ops factorial-untypable factorial-body factorial-name
+      factorial-value factorial-Turing factorial-Turing-value
+	  factorial-Klop factorial-fix : -> Exp .
+  eq factorial-untypable
+   = /\ n . ((/\ t n . t t n)
+       (/\ f n . if-then-else zero? (n) $1 (mult n (f f (pred n)))) n) .
+--- The factorial definition above is based on mimicking recursion by passing
+--- a function to itself.  It works, but it does not type.
+  eq factorial-body =
+       /\ f n . if-then-else zero? (n) $1 (mult n (f (pred n))) .
+--- The factorial-body above is guaranteed to only work with call-by-name,
+--- because there is a chance that the fixed-point will apply indefinitely.
+--- It appears that Maude does not choose to do so, so it appears to work.
+--- Anyway, if you have problems with it under unrestriced application then
+--- choose the one below instead.
+***  eq factorial-body = /\ f n . (if-then-else zero? (n)
+***                                 (/\ d . $1) 
+***                                 (/\ d . mult n (f(pred n)))
+***                               ) d .
+  eq factorial-name         = Y-name         factorial-body .
+  eq factorial-value        = Y-value        factorial-body .
+  eq factorial-Turing       = Y-Turing       factorial-body .
+  eq factorial-Turing-value = Y-Turing-value factorial-body .
+  eq factorial-Klop         = Y-Klop         factorial-body .
+  eq factorial-fix          = fix            factorial-body .
+endm
+
+--- Testing the factorial.
+--- These may not terminate under unrestricted lambda abstraction, because
+--- the fixed-point combinators may reduce forever, but somehow Maude manages
+--- again to avoid the non-terminating reductions in many cases.
+--- These are all very very slow (4-5 minutes!) with combinators.
+--- Also, call-by-value hangs on them; strange that it hangs also on
+--- factorial-value, not sure why yet.
+--- $2 is riddiculous, but it recurses twice, so is good enough for testing.
+rew display(factorial-untypable     $2) .
+rew display(factorial-name          $2) .
+rew display(factorial-value         $2) .
+rew display(factorial-Turing        $2) .
+rew display(factorial-Turing-value  $2) .
+rew display(factorial-Klop          $2) .  --- Y-Klop too big with combinators
+rew display(factorial-fix           $2) .
+
+mod LAMBDA-WITH-BUILTINS is
+  including PL-INT .    --- the builtins
+  including CURRYING .  --- we want currying as well
+  subsorts Int < Builtin .
+  var X : Var .  var N N1 N2 : Int .
+  var E E' E1 E2 E2' : Exp .  var B : Builtin .
+--- We add expresion constructs that correspond to builtin operations.
+  ops + * if : -> Builtin .
+--- Generic rule to reduce arguments of builtins (even under call-by-name):
+ crl B E => B E' if E => E' /\ (E' =/=Bool E) .
+--- Builtins taking two arguments need an additional rule for the second
+--- argument, as seen below.
+ crl + E1 E2 => + E1 E2' if E2 => E2' /\ (E2' =/=Bool E2) .
+  rl + N1 N2 => N1 +Int N2 .
+ crl * E1 E2 => * E1 E2' if E2 => E2' /\ (E2' =/=Bool E2) .
+  rl * N1 N2 => N1 *Int N2 .
+--- Only the first argument is evaluated for the conditional, then one
+--- of the two rules below is applied.
+  eq if 0 = /\ x y . y .
+ ceq if N = /\ x y . x if N =/=Bool 0 .
+endm
+
+--- Testing lambda with builtins
+rew (/\ x . /\ y . + x (y 7)) 5 (/\ y . * y 3) .                --- 26
+rew (/\ x y . if x (* (y x) x) (/\ y . y x)) 3 (/\ x . * 2 x) . --- 18
+rew (/\ x y . if x (* (y x) x) (/\ y . y x)) 0 (/\ x . * 2 x) . --- /\ y . y 0
+rew (/\ x y . if x (* (y x) x) (/\ y . y x)) x (/\ x . * 2 x) . --- an if term
+
+mod FACTORIALS-WITH-BUILTINS is
+  including LAMBDA-WITH-BUILTINS .
+  including FIXED-POINT-COMBINATORS .
+  including FIXED-POINT-AXIOMATIC .
+  ops factorial-untypable factorial-body factorial-name
+      factorial-value factorial-Turing factorial-Turing-value
+	  factorial-Klop factorial-fix : -> Exp .
+  eq factorial-untypable
+   = /\ n . (/\ t n . t t n) (/\ f n . if n (* n (f f (+ n -1))) 1) n .
+  eq factorial-body         = /\ f n . if n (* n (f (+ n -1))) 1 .
+  eq factorial-name         = Y-name         factorial-body .
+  eq factorial-value        = Y-value        factorial-body .
+  eq factorial-Turing       = Y-Turing       factorial-body .
+  eq factorial-Turing-value = Y-Turing-value factorial-body .
+  eq factorial-Klop         = Y-Klop         factorial-body .
+  eq factorial-fix          = fix            factorial-body .
+endm
+
+--- Testing factorial with builtins
+--- These may not terminate under unrestricted lambda abstraction, but Maude
+--- manages to find terminating reductions in many cases.
+--- Same comment as above regarding call-by-value.
+rew factorial-untypable    10 .
+rew factorial-name         10 .
+rew factorial-value        10 .
+rew factorial-Turing       10 .
+rew factorial-Turing-value 10 .
+rew factorial-Klop          2 .  --- runs out of memory with combinators
+rew factorial-fix          10 .
+
+--- Morale: all these lambda-based computational models work in theory, but
+--- they are far from being practical.  Sometimes turning rules into equations
+--- and/or turning equations into rules may speed things up on some programs.
+--- That is because rules vs. equations makes Maude use different
+--- rewriting strategies and indexing algorithms. However, there appears to be
+--- no general schema that makes lambda calculus based on substitution fast.
+--- Note that all three approaches are based in principle on substitution!
+--- Combinators and de Bruijn "cheat" by not having to deal with variable
+--- capture, but they have to do something else in turn (the S combinator
+--- stands for and smartly encodes "substitution").
+
+q
