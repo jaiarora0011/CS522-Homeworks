@@ -266,11 +266,14 @@ mod ARROWS is
 
   var C N M : Int . var E E1 E2 : Exp . 
   var X : Var .
+  var B : Builtin .
 
   eq prop(C, N, (E1 E2)) = (prop(C, N, E1)) (prop(C, N, E2)) .
   eq prop(C, N, (/\ E)) = /\ prop(C, N +Int 1, E) .
-  eq prop(C, N, M) = if (M >=Int N) then {M +Int C} else {M} fi .
+  eq prop(C, N, {M}) = if (M >=Int N) then {M +Int C} else {M} fi .
   eq prop(C, N, X) = X .
+  --- Important to include builtin case
+  eq prop(C, N, B) = B .
 
   eq up(E) = prop(1, 0, E) .
   eq down(E) = prop((-Int 1), 0, E) .
@@ -280,15 +283,18 @@ mod DE-BRUIJN is
   including ARROWS .
 --- ...HW6...: equations defining application for De-Bruijn encoding, given in slides
   var N M : Int . var E E' E1 E2 : Exp . var X : Var .
+  var B : Builtin .
 
   eq (E1 E2)[E / {N}] = (E1[E / {N}]) (E2[E / {N}]) .
   eq (/\ E')[E / {N}] = /\ (E'[up(E) / {N +Int 1}]) .
   eq {M}[E / {N}] = if (M ==Bool N) then E else {M} fi .
   --- Important to include the free variable case
   eq X[E / {N}] = X .
+  --- Important to include builtin case
+  eq B[E / {N}] = B .
 
-  --- Beta reduction
-  eq (/\ E) E' = down(E[up(E') / {0}]) .
+  --- Beta reduction rule. This cannot be an equation
+  rl (/\ E) E' => down(E[up(E') / {0}]) .
 endm
 
 --- Testing De Bruijn
@@ -301,15 +307,18 @@ mod DE-BRUIJN-OPTIMIZED is
   including ARROWS .
 --- ...HW6...: equations defining the substitution and lifting, plus one rule for beta-reduction, given in the book
   var N M : Int . var E E' E1 E2 : Exp . var X : Var .
+  var B : Builtin .
 
   eq (E1 E2)[E / {N}] = (E1[E / {N}]) (E2[E / {N}]) .
   eq (/\ E')[E / {N}] = /\ (E'[up(E) / {N +Int 1}]) .
   eq {M}[E / {N}] = if (M ==Bool N) then E else (if (M >Int N) then {M +Int (-Int 1)} else {M} fi) fi .
   --- Important to include the free variable case
   eq X[E / {N}] = X .
+  --- Important to include builtin case
+  eq B[E / {N}] = B .
 
-  --- Beta reduction
-  eq (/\ E) E' = E[E' / {0}] .
+  --- Beta reduction rule. This cannot be an equation
+  rl (/\ E) E' => E[E' / {0}] .
 endm
 
 --- Testing optimized De Bruijn
@@ -339,13 +348,18 @@ mod LAMBDA-WITH-DE-BRUIJN is
 ---  including DE-BRUIJN .
   including DE-BRUIJN-OPTIMIZED .
   op de-Bruijn-ify : Exp Var Int -> [Exp] .
-  var X Y : Var .  var E E1 E2 : Exp .  var N : Int .  var B : Builtin .
+  var X Y : Var .  var E E1 E2 : Exp .  var N M : Int .  var B : Builtin .
   eq /\ X . E = /\ de-Bruijn-ify(E, X, 0) .
 --- ...HW6...
-  eq de-Bruijn-ify((E1 E2), X, N) = (de-Bruijn-ify(E1, X, N) de-Bruijn-ify(E2, X, N)) .
-  --- already de-Brujin-ified expression
+  eq de-Bruijn-ify(E1 E2, X, N) = (de-Bruijn-ify(E1, X, N)) (de-Bruijn-ify(E2, X, N)) .
+  --- Adding this rule does not make any difference?
+  eq de-Bruijn-ify((/\ Y . E), X, N) = if X ==Bool Y then (/\ Y . E) else (/\ Y . de-Bruijn-ify(E, X, N +Int 1)) fi .
+  --- Already de-Brujin-ified expression
   eq de-Bruijn-ify((/\ E), X, N) = /\ de-Bruijn-ify(E, X, N +Int 1) .
-  eq de-Bruijn-ify(Y, X, N) = if X ==Bool Y then N else Y fi .
+  eq de-Bruijn-ify(Y, X, N) = if X ==Bool Y then {N} else Y fi .
+  eq de-Bruijn-ify({M}, X, N) = {M} .
+  --- Important to include the builtin case
+  eq de-Bruijn-ify(B, X, N) = B .
 endm
 
 mod LAMBDA is
