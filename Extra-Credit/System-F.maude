@@ -16,7 +16,7 @@ mod SYSTEM-F-SYNTAX is including PL-ID + BASIC-TYPES .
   sort Type .
   subsorts BasicType TypeVar < Type .
 
-  op _->_ : Type Type -> Type [gather (e E)] . --- right associative
+  op _->_ : Type Type -> Type [prec 25 gather (e E)] . --- right associative
   op \/_._ : TypeVar Type -> Type [prec 50] .
 
   sort Var . subsort Id < Var .
@@ -29,7 +29,7 @@ mod SYSTEM-F-SYNTAX is including PL-ID + BASIC-TYPES .
   --- Lambda Application
   op __ : Exp Exp -> Exp [prec 25 gather(E e)] . --- left associative, binds tighter than lambda abstractions
   --- Type application
-  op _[_] : Exp Type -> Exp .
+  op _[_] : Exp Type -> Exp [prec 20] .
 endm
 
 parse (int -> int) -> bool .
@@ -120,8 +120,8 @@ mod SYSTEM-F-TYPE-SYSTEM is including SYSTEM-F-TYPE-SYSTEM-CONFIGURATIONS .
     if < L, Gamma[T / X], E > => < T' > .
 
 --- Application
-  crl < L, Gamma, (E E') > => < T ' >
-    if < L, Gamma, E > => < S -> T > /\ < L, Gamma, E' > => < S > .
+  crl < L, Gamma, (E E') > => < T' >
+    if < L, Gamma, E > => < T -> T' > /\ < L, Gamma, E' > => < T > .
 
 --- Type Abstraction
   crl < L, Gamma , (/\ S . E) > => < \/ S . T >
@@ -131,5 +131,41 @@ mod SYSTEM-F-TYPE-SYSTEM is including SYSTEM-F-TYPE-SYSTEM-CONFIGURATIONS .
   crl < L, Gamma, E[T'] > => < T{T' / S} >
     if < L, Gamma, E > => < \/ S . T > .
 endm
+
+--- The identity combinator for integers
+rewrite < epsilon, .TA, /\ x : int . x > .
+--- The K combinator for integers
+rewrite < epsilon, .TA, /\ x : int . /\ y : int . x > .
+--- The S combinator for integers
+rewrite < epsilon, .TA, /\ x : int -> int -> int . /\ y : int -> int . /\ z : int . x z (y z) > .
+--- The polymorphic identity combinator
+rewrite < epsilon, .TA, /\ s . /\ x : s . x > .
+--- The polymorphic K combinator
+rewrite < epsilon, .TA, /\ s . /\ t . /\ x : s . /\ y : t . x > .
+--- The polymorphic S combinator
+rewrite < epsilon, .TA, /\ s . /\ t . /\ u . /\ x : s -> t -> u . /\ y : s -> t . /\ z : s . x z (y z) > .
+
+--- Polymorphic Church numerals
+--- The type of polymorphic church numerals is (\/ s . (s -> s) -> s -> s)
+---- 0
+rewrite < epsilon, .TA, /\ s . /\ f : s -> s . /\ z : s . z > .
+---- 1
+rewrite < epsilon, .TA, /\ s . /\ f : s -> s . /\ z : s . f z > .
+---- 2
+rewrite < epsilon, .TA, /\ s . /\ f : s -> s . /\ z : s . f (f z) > .
+
+---- Successor of church numerals
+rewrite < epsilon, .TA, /\ n : \/ s . (s -> s) -> s -> s . /\ s . /\ f : s -> s . /\ z : s . f (n[s] f z) > .
+---- Addition of church numerals
+rewrite < epsilon, .TA, /\ n : \/ s . (s -> s) -> s -> s . /\ m : \/ s . (s -> s) -> s -> s . /\ s . /\ f : s -> s . /\ z : s . n[s] f (m[s] f z) > .
+---- Multiplication of church numerals
+rewrite < epsilon, .TA, /\ n : \/ s . (s -> s) -> s -> s . /\ m : \/ s . (s -> s) -> s -> s . /\ s . /\ f : s -> s . /\ z : s . n[s] (m[s] f) z > .
+---- Exponentiation of church numerals
+rewrite < epsilon, .TA, /\ n : (\/ s . (s -> s) -> s -> s) . /\ m : (\/ s . (s -> s) -> s -> s) . /\ s . /\ f : s -> s . /\ z : s . m[s -> s] n[s] f z > .
+
+--- The divergent combinator does not type check
+rewrite < epsilon, .TA, /\ x : int . x x > .
+--- The polymorphic divergent combinator does not type check
+rewrite < epsilon, .TA, /\ s . /\ x : s . x x > .
 
 quit
