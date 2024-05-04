@@ -30,6 +30,8 @@ mod SYSTEM-F-SYNTAX is including PL-ID + BASIC-TYPES .
   op __ : Exp Exp -> Exp [prec 25 gather(E e)] . --- left associative, binds tighter than lambda abstractions
   --- Type application
   op _[_] : Exp Type -> Exp [prec 20] .
+  --- Polymorphic Conditional
+  op cond : -> Exp .
 endm
 
 parse (int -> int) -> bool .
@@ -130,6 +132,9 @@ mod SYSTEM-F-TYPE-SYSTEM is including SYSTEM-F-TYPE-SYSTEM-CONFIGURATIONS .
 --- Type Application
   crl < L, Gamma, E[T'] > => < T{T' / S} >
     if < L, Gamma, E > => < \/ S . T > .
+
+--- Polymorphic Conditional
+  rl < L, Gamma, cond > => < \/ s . bool -> s -> s -> s > .
 endm
 
 --- The identity combinator for integers
@@ -162,6 +167,12 @@ rewrite < epsilon, .TA, /\ n : \/ s . (s -> s) -> s -> s . /\ m : \/ s . (s -> s
 rewrite < epsilon, .TA, /\ n : \/ s . (s -> s) -> s -> s . /\ m : \/ s . (s -> s) -> s -> s . /\ s . /\ f : s -> s . /\ z : s . n[s] (m[s] f) z > .
 ---- Exponentiation of church numerals
 rewrite < epsilon, .TA, /\ n : (\/ s . (s -> s) -> s -> s) . /\ m : (\/ s . (s -> s) -> s -> s) . /\ s . /\ f : s -> s . /\ z : s . m[s -> s] n[s] f z > .
+
+--- Polymorphic conditional
+rewrite < epsilon, .TA, cond > .
+rewrite < epsilon, .TA, cond[int] > .
+rewrite < epsilon, .TA, cond[int -> int] > .
+rewrite < epsilon, .TA, cond[int -> bool] > .
 
 --- The divergent combinator does not type check
 rewrite < epsilon, .TA, /\ x : int . x x > .
