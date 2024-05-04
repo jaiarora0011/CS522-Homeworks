@@ -1,0 +1,198 @@
+in builtins
+
+mod BASIC-TYPES is
+  --- Represents the set of basic types like integers and booleans.
+  sort BasicType .
+  ops int bool real : -> BasicType .
+  op Top : -> BasicType .
+endm
+
+parse int .
+parse bool .
+
+mod TYPES is including BASIC-TYPES + PL-GENERIC-SUBSTITUTION  .
+  sort Type .
+  subsorts BasicType < Type .
+
+  op _->_ : Type Type -> Type [prec 25 gather (e E)] . --- right associative
+  
+  sort RecordType .
+  op .RecordTop : -> RecordType .
+  op _:_ : String Type -> RecordType [prec 0] .
+  op _|_ : RecordType RecordType -> RecordType [assoc comm id: .RecordTop format(d s s d)] .
+
+  subsort RecordType < Type .
+endm
+
+parse (int -> int) -> bool .
+parse .RecordTop .
+parse ("x" : int) .
+parse "x" : int | "y" : bool .
+parse "x" : int | "y" : bool | "z" : (int -> bool) .
+
+mod SUBTYPE-LAMBDA-CALCULUS is including TYPES .
+  sort Var . subsort Id < Var .
+
+  sort Exp . subsorts Var Int Bool < Exp .
+  --- Lambda abstraction with explicit type annotations
+  op /\_:_._ : Var Type Exp -> Exp [prec 50] .
+  --- Lambda Application
+  op __ : Exp Exp -> Exp [prec 25 gather(E e)] . --- left associative, binds tighter than lambda abstractions
+  
+  --- Record Expressions
+  sort Record .
+  op .empty : -> Record .
+  op _:=_ : String Exp -> Record [prec 0] .
+  op _;_ : Record Record -> Record [assoc comm id: .empty format(d s s d)] .
+  
+  subsort Record < Exp .
+
+  op _$_ : Exp String -> Exp [prec 50] . --- record projection
+
+  --- Polymorphic Conditional
+  op cond : -> Exp .
+endm
+
+parse /\ x : int -> int . x y .
+parse /\ x : int . x .
+parse /\ x : int . 1 .
+parse /\ b : bool . b .
+parse .empty .
+parse "x" := 1 .
+parse "x" := 1 ; "y" := 2 .
+parse "x" := 1 ; "y" := 2 ; "z" := 3 .
+parse ("x" := 1 ; "y" := 2 ; "z" := 3) $ "x" .
+
+
+mod TYPE-ASSIGNMENT is including SUBTYPE-LAMBDA-CALCULUS .
+  --- TypeAssignment (TA) is a list of type assignment to variables
+  --- It is a map from variables to their types
+  sort TypeAssignment .
+  op _|->_ : Var Type -> TypeAssignment [prec 0] .
+  op .TA : -> TypeAssignment .
+  op _&_ : TypeAssignment TypeAssignment -> TypeAssignment [assoc comm id: .TA format(d s s d)] .
+
+  op _(_) : TypeAssignment Var -> Type [prec 0] .          --- lookup
+  op _[_/_] : TypeAssignment Type Var -> TypeAssignment [prec 0] .  --- update
+
+  var Sigma : TypeAssignment .  var T T' : Type .  var X X' : Var .
+
+  op undef : -> Type .
+  eq X |-> undef = .TA .                 --- "undefine" a variable in a state
+
+  eq (Sigma & X |-> T)(X) = T .
+  eq Sigma(X) = undef [owise] .
+
+  eq (Sigma &  X |-> T)[T' / X ] = (Sigma & X |-> T') .
+  eq Sigma[T / X] = (Sigma & X |-> T) [owise] .
+endm
+
+reduce .TA .
+reduce x |-> (int -> int) .
+reduce x |-> (int -> int) & y |-> int .
+reduce (x |-> (int -> int) & y |-> int)(x) .
+reduce (x |-> (int -> int) & y |-> int)(z) .
+reduce (x |-> (int -> int) & y |-> int)[bool / x] .
+reduce (x |-> (int -> int) & y |-> int)[bool / x](x) .
+
+mod SUB-TYPING is including TYPES .
+  --- The subtyping relation: t1 <: t2 is true if t1 is a subtype of t2
+  sort SubtypeConfiguration .
+  op { _<:_ } : Type Type -> SubtypeConfiguration [prec 30] .
+  op {_} : Bool -> SubtypeConfiguration .
+  
+  var T T1 T2 T1' T2' T' : Type . var R R' : RecordType . var L : String .
+  --- Should these be equations or rules?
+  rl { T <: T } => { true } .
+  rl { bool <: int } => { true } .
+  rl { int <: real } => { true } .
+  crl { T1 <: T2 } => { true }
+    if { T1 <: T } => { true } /\ { T <: T2 } => { true } .
+
+  crl { T1 -> T1'  <: T2 -> T2' } => { true }
+    if { T2 <: T1 } => { true } /\ { T1' <: T2' } => { true } .
+  
+  crl { R | L : T  <: R' | L : T' } => { true }
+    if { T <: T' } => { true } /\ { R <: R' } => { true } .
+  
+  rl { R <: .RecordTop } => { true } .
+
+  rl { T <: Top } => { true } .
+endm
+
+rewrite { int <: int } .
+rewrite { bool <: int } .
+rewrite { int <: real } .
+--- Does not work: Because the transitive rule has an unbound meta-variable T
+--- Maybe there is a better wat to do this?
+rewrite { bool <: real} .
+rewrite { int -> int <: int -> int } .
+rewrite { int -> bool <: bool -> int } .
+rewrite { "x" : int | .RecordTop <: "x" : int | .RecordTop } .
+rewrite { "x" : bool | .RecordTop <: "x" : int | .RecordTop } .
+rewrite { "x" : int | "y" : int <: "y" : int | .RecordTop } .
+rewrite { int <: Top } .
+rewrite { bool <: Top } .
+rewrite { int -> int <: Top } .
+
+mod SUBTYPE-TYPE-SYSTEM-CONFIGURATIONS is including TYPE-ASSIGNMENT .
+  sort Configuration .
+  op <_,_> : TypeAssignment Exp -> Configuration .
+  op <_> : Type -> Configuration .
+endm
+
+mod SUBTYPE-TYPE-SYSTEM is including SUBTYPE-TYPE-SYSTEM-CONFIGURATIONS + SUB-TYPING .
+  var Gamma : TypeAssignment . var X : Var .
+  var T T' : Type . var E E' : Exp . var L : String . var R : Record .
+  var I : Int . var B : Bool .
+
+--- Integers
+  rl < Gamma, I > => < int > .
+
+--- Booleans
+  rl < Gamma, B > => < bool > .
+
+--- Variable
+  rl < (Gamma & X |-> T), X > => < T > .
+
+--- Variable Lambda Abstraction
+  crl < Gamma, /\ X : T . E > => < T -> T' >
+    if < Gamma[T / X], E > => < T' > .
+
+--- Application
+  crl < Gamma, (E E') > => < T' >
+    if < Gamma, E > => < T -> T' > /\ < Gamma, E' > => < T > .
+
+--- Subsumption
+  crl < Gamma, E > => < T' >
+    if < Gamma, E > => < T > /\ { T <: T' } => { true } .
+
+--- Record Typing
+  crl < Gamma, L := E ; R > => < L : T | T' >
+    if < Gamma, E > => < T > /\ < Gamma, R > => < T' > .
+
+--- Empty Record
+  rl < Gamma, .empty > => < .RecordTop > .
+
+--- Field access
+  crl < Gamma, R $ L > => < T >
+    if < Gamma, R > => < T' | L : T > .
+
+--- Conditional
+  rl < Gamma, cond > =>  < bool -> Top -> Top -> Top > .
+endm
+
+rewrite < x |-> int, x > .
+rewrite < .TA, /\ x : int . x > .
+--- Testcases for records
+rewrite < .TA, "x" := 1 > .
+rewrite < .TA, "x" := 1 ; "y" := true > .
+rewrite < .TA, "x" := 1 ; "y" := true ; "z" := (/\ x : int . x) > .
+rewrite < .TA, ("x" := 1 ; "y" := true ; "z" := (/\ x : int . x)) $ "x" > .
+rewrite < .TA, ("x" := 1 ; "y" := true ; "z" := (/\ x : int . x)) $ "y" > .
+rewrite < .TA, ("x" := 1 ; "y" := true ; "z" := (/\ x : int . x)) $ "z" > .
+
+--- Testcases for conditionals
+rewrite < .TA, cond true 1 2 > .
+
+quit
