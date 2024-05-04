@@ -1,0 +1,60 @@
+in builtins
+
+mod BASIC-TYPES is
+  --- Represents the set of basic types like integers and booleans.
+  sort BasicType .
+  ops int bool : -> BasicType .
+endm
+
+parse int .
+parse bool .
+
+mod SYSTEM-F-SYNTAX is including PL-ID + BASIC-TYPES .
+  sort TypeVar .
+  subsort Id < TypeVar .
+
+  sort Type .
+  subsorts BasicType TypeVar < Type .
+
+  op _->_ : Type Type -> Type [gather (e E)] . --- right associative
+  op \/_._ : TypeVar Type -> Type [prec 50] .
+
+  sort Var . subsort Id < Var .
+
+  sort Exp . subsort Var < Exp .
+  --- Lambda abstraction with explicit type annotations
+  op /\_:_._ : Var Type Exp -> Exp [prec 50] .
+  --- Lambda expression parameterized by a type variable
+  op /\_._ : TypeVar Exp -> Exp [prec 50] .
+  --- Lambda Application
+  op __ : Exp Exp -> Exp [prec 25 gather(E e)] . --- left associative, binds tighter than lambda abstractions
+  --- Type application
+  op _[_] : Exp Type -> Exp .
+endm
+
+parse (int -> int) -> bool .
+parse \/ s . s .
+parse \/ s . s -> s .
+parse \/ s . \/ t . s -> t .
+parse /\ x : int . x .
+--- TODO: this is not type checked as an expression, but also does not raise a parse error
+parse /\ x : int . x -> x .
+parse /\ s . /\ x : s . x .
+parse /\ s . /\ x : s . /\ y : int . x y .
+parse (/\ s . /\ x : s . x)[int] .
+
+mod TYPE-ASSIGNMENT is including SYSTEM-F-SYNTAX .
+  sort TypeAssignmentElement .
+  op {_:_} : Var Type -> TypeAssignmentElement .
+  
+  sort TypeAssignment . subsorts TypeAssignmentElement TypeVar < TypeAssignment .
+  op epsilon : -> TypeAssignment .
+  op _;_ : TypeAssignment TypeAssignment -> TypeAssignment [assoc comm id: epsilon format(d s s d)] .
+endm
+
+reduce epsilon .
+reduce { x : int } ; epsilon .
+reduce { x : bool } ; epsilon .
+reduce s ; { x : int } ; t ; epsilon .
+
+quit
