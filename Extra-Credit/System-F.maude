@@ -42,20 +42,47 @@ parse /\ x : int . x -> x .
 parse /\ s . /\ x : s . x .
 parse /\ s . /\ x : s . /\ y : int . x y .
 parse (/\ s . /\ x : s . x)[int] .
+parse (/\ s . /\ x : s . x)[int -> int] .
 
 mod TYPE-ASSIGNMENT is including SYSTEM-F-SYNTAX .
-  sort TypeAssignmentElement .
-  op {_:_} : Var Type -> TypeAssignmentElement .
-  
-  sort TypeAssignment . subsorts TypeAssignmentElement TypeVar < TypeAssignment .
-  op epsilon : -> TypeAssignment .
-  op _;_ : TypeAssignment TypeAssignment -> TypeAssignment [assoc comm id: epsilon format(d s s d)] .
+  --- TypeVariables contains a list or a set of type variables
+  sort TypeVariables . subsorts TypeVar < TypeVariables .
+  op epsilon : -> TypeVariables .
+  op _;_ : TypeVariables TypeVariables -> TypeVariables [assoc comm id: epsilon format(d s s d)] .
+
+  --- TypeAssignment (TA) is a list of type assignment to variables
+  --- It is a map from variables to their types
+  --- It is a design choice to separate the type assignment from the list of type variables
+  sort TypeAssignment .
+  op _|->_ : Var Type -> TypeAssignment [prec 0] .
+  op .TA : -> TypeAssignment .
+  op _&_ : TypeAssignment TypeAssignment -> TypeAssignment [assoc comm id: .TA format(d s s d)] .
+
+  op _(_) : TypeAssignment Var -> Type [prec 0] .          --- lookup
+  op _[_/_] : TypeAssignment Type Var -> TypeAssignment [prec 0] .  --- update
+
+  var Sigma : TypeAssignment .  var T T' : Type .  var X X' : Var .
+
+  eq X |-> undefined = .TA .                 --- "undefine" a variable in a state
+
+  eq (Sigma & X |-> T)(X) = T .
+  eq Sigma(X) = undefined [owise] .
+
+  eq (Sigma &  X |-> T)[T' / X ] = (Sigma & X |-> T') .
+  eq Sigma[T / X] = (Sigma & X |-> T) [owise] .
 endm
 
 reduce epsilon .
-reduce { x : int } ; epsilon .
-reduce { x : bool } ; epsilon .
-reduce s ; { x : int } ; t ; epsilon .
+reduce s ; epsilon .
+reduce t ; s ; t ; epsilon .
+
+reduce .TA .
+reduce x |-> (int -> int) .
+reduce x |-> (int -> int) & y |-> int .
+reduce (x |-> (int -> int) & y |-> int)(x) .
+reduce (x |-> (int -> int) & y |-> int)(z) .
+reduce (x |-> (int -> int) & y |-> int)[bool / x] .
+reduce (x |-> (int -> int) & y |-> int)[bool / x](x) .
 
 mod SUBSTITUTION is
   including SYSTEM-F-SYNTAX .
@@ -63,27 +90,46 @@ mod SUBSTITUTION is
   --- So far, only substitution on types is needed
   subsort Type < GenericTerm .
   eq bind('\/_._) = 1 .
-  op _[_/_] : Type Type TypeVar -> Type .
+  op _{_/_} : Type Type TypeVar -> Type [prec 0] .
   vars T1 T2 : Type .  var X : Id .
-  eq T1[T2 / X] = substitute(T1, T2, X) .
+  eq T1{T2 / X} = substitute(T1, T2, X) .
 endm
 
 reduce int -> int .
-reduce int[bool / s] .
-reduce (\/ s . s -> s)[int / s] .
-reduce (\/ s . s -> t)[s -> s / t] .
+reduce int{bool / s} .
+reduce (s -> s){int / s} .
+reduce (\/ s . s -> s){int / s} .
+reduce (\/ s . s -> t){s -> s / t} .
 
-mod SYSTEM-F-TYPE-SYSTEM-CONFIGURATIONS is including TYPE-ASSIGNMENT .
+mod SYSTEM-F-TYPE-SYSTEM-CONFIGURATIONS is including TYPE-ASSIGNMENT + SUBSTITUTION .
   sort Configuration .
-  op <_,_> : TypeAssignment Exp -> Configuration .
+  op <_,_,_> : TypeVariables TypeAssignment Exp -> Configuration .
   op <_> : Type -> Configuration .
 endm
 
-parse < { y : int },  /\ x : int -> int . x y > .
-parse < epsilon, /\ s . /\ x : s . x > .
-
 mod SYSTEM-F-TYPE-SYSTEM is including SYSTEM-F-TYPE-SYSTEM-CONFIGURATIONS .
-  var Gamma : TypeAssignment . var X : Var . var T T' : Type . var S : TypeVar .
+  var L : TypeVariables .  var Gamma : TypeAssignment . var X : Var .
+  var T T' : Type . var S : TypeVar . var E E' : Exp .
+
+--- Variable
+  --- TODO: this is only valid if free type variables in T are in L
+  rl < L,  (Gamma & X |-> T), X > => < T > .
+
+--- Variable Lambda Abstraction
+  crl < L, Gamma, /\ X : T . E > => < T -> T' >
+    if < L, Gamma[T / X], E > => < T' > .
+
+--- Application
+  crl < L, Gamma, (E E') > => < T ' >
+    if < L, Gamma, E > => < S -> T > /\ < L, Gamma, E' > => < S > .
+
+--- Type Abstraction
+  crl < L, Gamma , (/\ S . E) > => < \/ S . T >
+    if < L ; S, Gamma, E > => < T > .
+
+--- Type Application
+  crl < L, Gamma, E[T'] > => < T{T' / S} >
+    if < L, Gamma, E > => < \/ S . T > .
 endm
 
 quit
