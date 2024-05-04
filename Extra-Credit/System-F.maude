@@ -36,7 +36,7 @@ parse (int -> int) -> bool .
 parse \/ s . s .
 parse \/ s . s -> s .
 parse \/ s . \/ t . s -> t .
-parse /\ x : int . x .
+parse /\ x : int -> int . x y .
 --- TODO: this is not type checked as an expression, but also does not raise a parse error
 parse /\ x : int . x -> x .
 parse /\ s . /\ x : s . x .
@@ -56,5 +56,34 @@ reduce epsilon .
 reduce { x : int } ; epsilon .
 reduce { x : bool } ; epsilon .
 reduce s ; { x : int } ; t ; epsilon .
+
+mod SUBSTITUTION is
+  including SYSTEM-F-SYNTAX .
+  including PL-GENERIC-SUBSTITUTION .
+  --- So far, only substitution on types is needed
+  subsort Type < GenericTerm .
+  eq bind('\/_._) = 1 .
+  op _[_/_] : Type Type TypeVar -> Type .
+  vars T1 T2 : Type .  var X : Id .
+  eq T1[T2 / X] = substitute(T1, T2, X) .
+endm
+
+reduce int -> int .
+reduce int[bool / s] .
+reduce (\/ s . s -> s)[int / s] .
+reduce (\/ s . s -> t)[s -> s / t] .
+
+mod SYSTEM-F-TYPE-SYSTEM-CONFIGURATIONS is including TYPE-ASSIGNMENT .
+  sort Configuration .
+  op <_,_> : TypeAssignment Exp -> Configuration .
+  op <_> : Type -> Configuration .
+endm
+
+parse < { y : int },  /\ x : int -> int . x y > .
+parse < epsilon, /\ s . /\ x : s . x > .
+
+mod SYSTEM-F-TYPE-SYSTEM is including SYSTEM-F-TYPE-SYSTEM-CONFIGURATIONS .
+  var Gamma : TypeAssignment . var X : Var . var T T' : Type . var S : TypeVar .
+endm
 
 quit
