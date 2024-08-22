@@ -106,8 +106,10 @@ mod SUB-TYPING is including TYPES .
   rl { T <: T } => { true } .
   rl { bool <: int } => { true } .
   rl { int <: real } => { true } .
-  crl { T1 <: T2 } => { true }
-    if { T1 <: T } => { true } /\ { T <: T2 } => { true } .
+  rl { bool <: real } => { true } .
+  --- No need for the transitivity rule, as long as the relation in a partial order on basic types
+  --- crl { T1 <: T2 } => { true }
+  ---   if { T1 <: T } => { true } /\ { T <: T2 } => { true } .
 
   crl { T1 -> T1'  <: T2 -> T2' } => { true }
     if { T2 <: T1 } => { true } /\ { T1' <: T2' } => { true } .
@@ -123,11 +125,10 @@ endm
 rewrite { int <: int } .
 rewrite { bool <: int } .
 rewrite { int <: real } .
---- Does not work: Because the transitive rule has an unbound meta-variable T
---- Maybe there is a better wat to do this?
 rewrite { bool <: real} .
 rewrite { int -> int <: int -> int } .
 rewrite { int -> bool <: bool -> int } .
+rewrite { real -> int <: bool -> real } .
 rewrite { "x" : int | .RecordTop <: "x" : int | .RecordTop } .
 rewrite { "x" : bool | .RecordTop <: "x" : int | .RecordTop } .
 rewrite { "x" : int | "y" : int <: "y" : int | .RecordTop } .
@@ -142,8 +143,9 @@ mod SUBTYPE-TYPE-SYSTEM-CONFIGURATIONS is including TYPE-ASSIGNMENT .
 endm
 
 mod SUBTYPE-TYPE-SYSTEM is including SUBTYPE-TYPE-SYSTEM-CONFIGURATIONS + SUB-TYPING .
+  --- This type system derives the most concrete type for an expression
   var Gamma : TypeAssignment . var X : Var .
-  var T T' : Type . var E E' : Exp . var L : String . var R : Record .
+  var T T' T'' : Type . var E E' : Exp . var L : String . var R : Record .
   var I : Int . var B : Bool .
 
 --- Integers
@@ -159,13 +161,13 @@ mod SUBTYPE-TYPE-SYSTEM is including SUBTYPE-TYPE-SYSTEM-CONFIGURATIONS + SUB-TY
   crl < Gamma, /\ X : T . E > => < T -> T' >
     if < Gamma[T / X], E > => < T' > .
 
---- Application
+--- Syntax-Directed Application (so we don't need the subsumption rule)
   crl < Gamma, (E E') > => < T' >
-    if < Gamma, E > => < T -> T' > /\ < Gamma, E' > => < T > .
+    if < Gamma, E > => < T -> T' > /\ < Gamma, E' > => < T'' > /\ { T'' <: T } => { true } .
 
---- Subsumption
-  crl < Gamma, E > => < T' >
-    if < Gamma, E > => < T > /\ { T <: T' } => { true } .
+--- --- Subsumption
+---   crl < Gamma, E > => < T' >
+---     if < Gamma, E > => < T > /\ { T <: T' } => { true } .
 
 --- Record Typing
   crl < Gamma, L := E ; R > => < L : T | T' >
