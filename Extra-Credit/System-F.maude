@@ -103,6 +103,66 @@ reduce (s -> s){int / s} .
 reduce (\/ s . s -> s){int / s} .
 reduce (\/ s . s -> t){s -> s / t} .
 
+mod FREE-VARIABLES is including TYPE-ASSIGNMENT + SUBSTITUTION .
+  var S : TypeVar . var L L' : TypeVariables .
+
+  op _in_ : TypeVar TypeVariables -> Bool .
+  op union : TypeVariables TypeVariables -> TypeVariables .
+  op diff : TypeVariables TypeVariables -> TypeVariables .
+  op sublist : TypeVariables TypeVariables -> Bool .
+
+  eq S in (L ; S) = true .
+  eq S in L = false [owise] .
+
+  eq union(epsilon, L) = L .
+  eq union(S ; L, L') = if S in L' then union(L, L') else S ; union(L, L') fi .
+
+  eq diff(epsilon, L) = epsilon .
+  eq diff(S ; L, L') = if S in L' then diff(L, L') else S ; diff(L, L') fi .
+
+  eq sublist(epsilon, L) = true .
+  eq sublist(S ; L, L') = if S in L' then sublist(L, L') else false fi .
+
+  op FV : Type -> TypeVariables .
+
+  var S : TypeVar . var T T' : Type .
+
+  eq FV(S) = S .
+  eq FV(T -> T') = union(FV(T), FV(T')) .
+  eq FV(\/ S . T) = diff(FV(T), S) .
+endm
+
+--- in tests
+reduce s in epsilon .
+reduce s in s .
+reduce s in s ; t .
+reduce s in s ; t ; s .
+reduce s in a ; b .
+--- union tests
+reduce union(epsilon, epsilon) .
+reduce union(epsilon, s) .
+reduce union(epsilon, s ; t) .
+reduce union(s ; t, t ; s) .
+reduce union(a ; b, a ; x ; y) .
+--- diff tests
+reduce diff(epsilon, epsilon) .
+reduce diff(epsilon, s ; t) .
+reduce diff(s ; t, epsilon) .
+reduce diff(s ; t, s) .
+reduce diff(s ; t ; r, r ; a ; b) .
+--- sublist tests
+reduce sublist(epsilon, epsilon) .
+reduce sublist(epsilon, s ; t) .
+reduce sublist(s ; t, epsilon) .
+reduce sublist(s ; t, s) .
+reduce sublist(s ; t, t ; r ; x ; s) .
+reduce sublist(s ; t ; r, r ; a ; b) .
+--- FV tests
+reduce FV(s) .
+reduce FV(s -> s -> s) .
+reduce FV(\/ s . s -> t) .
+reduce FV(s -> (\/ s . s -> a)) .
+
 mod SYSTEM-F-TYPE-SYSTEM-CONFIGURATIONS is including TYPE-ASSIGNMENT + SUBSTITUTION .
   sort Configuration .
   op <_,_,_> : TypeVariables TypeAssignment Exp -> Configuration .
