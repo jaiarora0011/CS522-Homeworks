@@ -34,13 +34,13 @@ mod SYSTEM-F-SYNTAX is including PL-ID + BASIC-TYPES .
   op cond : -> Exp .
 endm
 
+--- Parse tests for types
 parse (int -> int) -> bool .
 parse \/ s . s .
 parse \/ s . s -> s .
 parse \/ s . \/ t . s -> t .
+--- Parse tests for expressions
 parse /\ x : int -> int . x y .
---- TODO: this is not type checked as an expression, but also does not raise a parse error
-parse /\ x : int . x -> x .
 parse /\ s . /\ x : s . x .
 parse /\ s . /\ x : s . /\ y : int . x y .
 parse (/\ s . /\ x : s . x)[int] .
@@ -57,15 +57,15 @@ mod TYPE-ASSIGNMENT is including SYSTEM-F-SYNTAX .
   --- It is a design choice to separate the type assignment from the list of type variables
   sort TypeAssignment .
   op _|->_ : Var Type -> TypeAssignment [prec 0] .
-  op .TA : -> TypeAssignment .
-  op _&_ : TypeAssignment TypeAssignment -> TypeAssignment [assoc comm id: .TA format(d s s d)] .
+  op empty : -> TypeAssignment .
+  op _&_ : TypeAssignment TypeAssignment -> TypeAssignment [assoc comm id: empty format(d s s d)] .
 
   op _(_) : TypeAssignment Var -> Type [prec 0] .          --- lookup
   op _[_/_] : TypeAssignment Type Var -> TypeAssignment [prec 0] .  --- update
 
   var Sigma : TypeAssignment .  var T T' : Type .  var X X' : Var .
 
-  eq X |-> undefined = .TA .                 --- "undefine" a variable in a state
+  eq X |-> undefined = empty .                 --- "undefine" a variable in a state
 
   eq (Sigma & X |-> T)(X) = T .
   eq Sigma(X) = undefined [owise] .
@@ -78,7 +78,7 @@ reduce epsilon .
 reduce s ; epsilon .
 reduce t ; s ; t ; epsilon .
 
-reduce .TA .
+reduce empty .
 reduce x |-> (int -> int) .
 reduce x |-> (int -> int) & y |-> int .
 reduce (x |-> (int -> int) & y |-> int)(x) .
@@ -126,7 +126,7 @@ mod SYSTEM-F-TYPE-SYSTEM is including SYSTEM-F-TYPE-SYSTEM-CONFIGURATIONS .
     if < L, Gamma, E > => < T -> T' > /\ < L, Gamma, E' > => < T > .
 
 --- Type Abstraction
-  crl < L, Gamma , (/\ S . E) > => < \/ S . T >
+  crl < L, Gamma, (/\ S . E) > => < \/ S . T >
     if < L ; S, Gamma, E > => < T > .
 
 --- Type Application
@@ -138,45 +138,45 @@ mod SYSTEM-F-TYPE-SYSTEM is including SYSTEM-F-TYPE-SYSTEM-CONFIGURATIONS .
 endm
 
 --- The identity combinator for integers
-rewrite < epsilon, .TA, /\ x : int . x > .
+rewrite < epsilon, empty, /\ x : int . x > .
 --- The K combinator for integers
-rewrite < epsilon, .TA, /\ x : int . /\ y : int . x > .
+rewrite < epsilon, empty, /\ x : int . /\ y : int . x > .
 --- The S combinator for integers
-rewrite < epsilon, .TA, /\ x : int -> int -> int . /\ y : int -> int . /\ z : int . x z (y z) > .
+rewrite < epsilon, empty, /\ x : int -> int -> int . /\ y : int -> int . /\ z : int . x z (y z) > .
 --- The polymorphic identity combinator
-rewrite < epsilon, .TA, /\ s . /\ x : s . x > .
+rewrite < epsilon, empty, /\ s . /\ x : s . x > .
 --- The polymorphic K combinator
-rewrite < epsilon, .TA, /\ s . /\ t . /\ x : s . /\ y : t . x > .
+rewrite < epsilon, empty, /\ s . /\ t . /\ x : s . /\ y : t . x > .
 --- The polymorphic S combinator
-rewrite < epsilon, .TA, /\ s . /\ t . /\ u . /\ x : s -> t -> u . /\ y : s -> t . /\ z : s . x z (y z) > .
+rewrite < epsilon, empty, /\ s . /\ t . /\ u . /\ x : s -> t -> u . /\ y : s -> t . /\ z : s . x z (y z) > .
 
 --- Polymorphic Church numerals
 --- The type of polymorphic church numerals is (\/ s . (s -> s) -> s -> s)
 ---- 0
-rewrite < epsilon, .TA, /\ s . /\ f : s -> s . /\ z : s . z > .
+rewrite < epsilon, empty, /\ s . /\ f : s -> s . /\ z : s . z > .
 ---- 1
-rewrite < epsilon, .TA, /\ s . /\ f : s -> s . /\ z : s . f z > .
+rewrite < epsilon, empty, /\ s . /\ f : s -> s . /\ z : s . f z > .
 ---- 2
-rewrite < epsilon, .TA, /\ s . /\ f : s -> s . /\ z : s . f (f z) > .
+rewrite < epsilon, empty, /\ s . /\ f : s -> s . /\ z : s . f (f z) > .
 
 ---- Successor of church numerals
-rewrite < epsilon, .TA, /\ n : \/ s . (s -> s) -> s -> s . /\ s . /\ f : s -> s . /\ z : s . f (n[s] f z) > .
+rewrite < epsilon, empty, /\ n : \/ s . (s -> s) -> s -> s . /\ s . /\ f : s -> s . /\ z : s . f (n[s] f z) > .
 ---- Addition of church numerals
-rewrite < epsilon, .TA, /\ n : \/ s . (s -> s) -> s -> s . /\ m : \/ s . (s -> s) -> s -> s . /\ s . /\ f : s -> s . /\ z : s . n[s] f (m[s] f z) > .
+rewrite < epsilon, empty, /\ n : \/ s . (s -> s) -> s -> s . /\ m : \/ s . (s -> s) -> s -> s . /\ s . /\ f : s -> s . /\ z : s . n[s] f (m[s] f z) > .
 ---- Multiplication of church numerals
-rewrite < epsilon, .TA, /\ n : \/ s . (s -> s) -> s -> s . /\ m : \/ s . (s -> s) -> s -> s . /\ s . /\ f : s -> s . /\ z : s . n[s] (m[s] f) z > .
+rewrite < epsilon, empty, /\ n : \/ s . (s -> s) -> s -> s . /\ m : \/ s . (s -> s) -> s -> s . /\ s . /\ f : s -> s . /\ z : s . n[s] (m[s] f) z > .
 ---- Exponentiation of church numerals
-rewrite < epsilon, .TA, /\ n : (\/ s . (s -> s) -> s -> s) . /\ m : (\/ s . (s -> s) -> s -> s) . /\ s . /\ f : s -> s . /\ z : s . m[s -> s] n[s] f z > .
+rewrite < epsilon, empty, /\ n : (\/ s . (s -> s) -> s -> s) . /\ m : (\/ s . (s -> s) -> s -> s) . /\ s . /\ f : s -> s . /\ z : s . m[s -> s] n[s] f z > .
 
 --- Polymorphic conditional
-rewrite < epsilon, .TA, cond > .
-rewrite < epsilon, .TA, cond[int] > .
-rewrite < epsilon, .TA, cond[int -> int] > .
-rewrite < epsilon, .TA, cond[int -> bool] > .
+rewrite < epsilon, empty, cond > .
+rewrite < epsilon, empty, cond[int] > .
+rewrite < epsilon, empty, cond[int -> int] > .
+rewrite < epsilon, empty, cond[int -> bool] > .
 
 --- The divergent combinator does not type check
-rewrite < epsilon, .TA, /\ x : int . x x > .
+rewrite < epsilon, empty, /\ x : int . x x > .
 --- The polymorphic divergent combinator does not type check
-rewrite < epsilon, .TA, /\ s . /\ x : s . x x > .
+rewrite < epsilon, empty, /\ s . /\ x : s . x x > .
 
 quit
