@@ -125,9 +125,10 @@ mod FREE-VARIABLES is including TYPE-ASSIGNMENT + SUBSTITUTION .
 
   op FV : Type -> TypeVariables .
 
-  var S : TypeVar . var T T' : Type .
+  var T T' : Type . var B : BasicType .
 
   eq FV(S) = S .
+  eq FV(B) = epsilon .
   eq FV(T -> T') = union(FV(T), FV(T')) .
   eq FV(\/ S . T) = diff(FV(T), S) .
 endm
@@ -163,7 +164,7 @@ reduce FV(s -> s -> s) .
 reduce FV(\/ s . s -> t) .
 reduce FV(s -> (\/ s . s -> a)) .
 
-mod SYSTEM-F-TYPE-SYSTEM-CONFIGURATIONS is including TYPE-ASSIGNMENT + SUBSTITUTION .
+mod SYSTEM-F-TYPE-SYSTEM-CONFIGURATIONS is including FREE-VARIABLES .
   sort Configuration .
   op <_,_,_> : TypeVariables TypeAssignment Exp -> Configuration .
   op <_> : Type -> Configuration .
@@ -174,8 +175,8 @@ mod SYSTEM-F-TYPE-SYSTEM is including SYSTEM-F-TYPE-SYSTEM-CONFIGURATIONS .
   var T T' : Type . var S : TypeVar . var E E' : Exp .
 
 --- Variable
-  --- TODO: this is only valid if free type variables in T are in L
-  rl < L,  (Gamma & X |-> T), X > => < T > .
+  crl < L,  (Gamma & X |-> T), X > => < T >
+    if sublist(FV(T), L) .
 
 --- Variable Lambda Abstraction
   crl < L, Gamma, /\ X : T . E > => < T -> T' >
@@ -191,7 +192,7 @@ mod SYSTEM-F-TYPE-SYSTEM is including SYSTEM-F-TYPE-SYSTEM-CONFIGURATIONS .
 
 --- Type Application
   crl < L, Gamma, E[T'] > => < T{T' / S} >
-    if < L, Gamma, E > => < \/ S . T > .
+    if < L, Gamma, E > => < \/ S . T > /\ sublist(FV(T'), L) .
 
 --- Polymorphic Conditional
   rl < L, Gamma, cond > => < \/ s . bool -> s -> s -> s > .
@@ -233,6 +234,7 @@ rewrite < epsilon, empty, cond > .
 rewrite < epsilon, empty, cond[int] > .
 rewrite < epsilon, empty, cond[int -> int] > .
 rewrite < epsilon, empty, cond[int -> bool] > .
+rewrite < epsilon, (x |-> bool & y |-> bool & z |-> bool) , cond[bool] x y z > .
 
 --- The divergent combinator does not type check
 rewrite < epsilon, empty, /\ x : int . x x > .
